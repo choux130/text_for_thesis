@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+%\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\setcounter{section}{1} %make section number start from 2.
+\setcounter{page}{7}
+
+\section{Scientific Background}
+Mitochondria, also known as the ``energy factories'' of a cell, is a popular research topic in the fields of biology, chemical biology and biomedical engineering. One of the reasons for its 
+popularity is that the mechanism of how mitochondria produce energy and its dysfunction have a strong relationship to the aging process, as described by Bratic and Larsson (2013).  
+
+The role of mitochondria in muscle contraction can provide some insight into cellular degeneration and aging. There are two ends on a single fiber cell, one is called a proximal point and the other is called a distal point. When a muscle contracts, the proximal point fixes at the same spot and the distal point is pulled to the proximal point. Given the different functions of these two ends, Professor Arriaga hypothesized that the required energy for muscle contraction varies within a single muscle fiber cell. Therefore, he proposed a hypothesis for this project: Properties (defined as Perimeter, Area, Circularity and Aspect Ratio) of mitochondria within a single fiber cell are significantly different by Locations (defined as Proximal end, Middle, or Distal end). 
+
+According to Prof.\ Arriaga, the result of the above hypothesis will be an important base for his future research on the aging process. As a muscle fiber cell ages, its mitochondria also degenerate which means their properties may change and may not be able to produce enough energy to facilitate muscle contractions as powerful as they once were. Hence, by observing the changes of mitochondria in muscle fiber cells over time, more ideas about the aging process may emerge. 
+
+\end{document}

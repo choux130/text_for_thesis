@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\setcounter{section}{8}
+\setcounter{page}{35}
+
+\begin{thebibliography}{9}
+
+\bibitem{latexcompanion} 
+Bratic, Ana and Larsson, Nils-Göran. 
+``The Role of Mitochondria in Aging.''
+\textit{Journal of Clinical Investigation}
+123, no. 3 (2013): 951-57. doi:10.1172/jci64125.
+
+\bibitem{latexcompanion} 
+Cox, D. R. 
+\textit{Renewal Theory.}
+London: Methuen \& Co., 1962.
+
+\bibitem{latexcompanion} 
+Patil,G. P. and Ord,J. K.
+``On Size-Biased Sampling and Related Form-Invariant Weighted Distributions.''
+\textit{Sankhya: The Indian Journal of Statistics, Series B (1960-2002)} 
+38, no. 1 (1976): 48-61. 
+
+\bibitem{latexcompanion} 
+Jones, M. C.
+``Kernel Density Estimation for Length Biased Data.''
+\textit{Biometrika.}
+78, no. 3 (1991): 511-19. doi:10.2307/2337020.
+
+
+\end{thebibliography}
+
+\end{document}

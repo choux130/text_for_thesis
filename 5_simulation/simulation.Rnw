@@ -1,0 +1,476 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+\usepackage{caption}
+\captionsetup[figure]{labelfont=bf}
+\captionsetup[table]{labelfont=bf,position=below}
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\setcounter{section}{4} 
+\setcounter{page}{18}
+
+
+\section{Simulation}
+\subsection{Algorithm}
+To simulate the reality of how mitochondria were sampled, two-stage sampling was done in this project because each cell has finite mitochondria. For the first stage, I randomly chose $N$ elements as subpopulation from $Exp({\mu})$ which is the assumed distribution of Area of mitochondria. These $N$ elements were like the total mitochondria in a cell with value as their area. Therefore, our interested parameter was the mean Area of the subpopulation, ${\mu}_{A}$, rather than $\mu$. In the second stage, we sampled $n$ elements from the subpopulation with sampling probability proportional to the area of elements. Though the observed data we have were from sampling without replacement, sampling with replacement was also done in this project in order to obtain more insights of the estimators' performance.
+
+\bigskip
+\setlength{\parskip}{0em}
+\noindent\textbf{\underline{The Algorithm for simulating the sampling distribution of Area:}}
+
+\begin{enumerate}
+  \item Set \textit{N} = 2000; \textit{Ratio} between \textit{N} and \textit{n} are $\left( 5\%, 10\%, 30\%, 50\%, 70\%, 95\% \right)$; \textit{Repeated Times} = 1000 and $\mu$ = 1000. 
+  \item Generate $N$ samples from $Exp(\mu)$ as subpopulation of Area and calculate subpopulation mean, ${\mu}_{A}$, as the known parameter.
+  \item Sample a set of samples with size $n$ from subpopulation with sampling probability proportional to the value of Area with and without replacement. $n$ is the product of $N$ and a certain $Ratio$.
+  \item For each set of samples, calculate the candidate estimators: Arithmetic Mean (AM), Weighted Mean (WM) and Maximum Likelihood Estimator (MLE).
+  \item Repeat 3. 4. for the set \textit{Repeated Times} for each $Ratio$. 
+  \item Calculate the Mean, Standard Deviation and Root MSE for each candidate estimator. Also draw plots of sampling distributions for each candidate estimator.
+\end{enumerate}
+
+\bigbreak
+The process on generating data of Perimeter of mitochondria was similar but based not only on the distribution of Area but also the distribution of Circularity of mitochondria and their independent relationship. In the first stage, randomly chose $N$ elements of Circularity of mitochondria from $Beta(\alpha, \beta)$ and then substitute these $N$ elements Circularity and the $N$ elements of Area sitmulated before in the formula, $\text{Perimeter}=\sqrt{4\pi}\sqrt{\frac{\text{Area}}{\text{Circularity}}}$, to obtain $N$ elements of Perimeter as subpopulation. Then, the mean of the $N$ elements of Perimeter were our interested parameter, ${\mu}_{P}$. After getting the subpopulation of Perimeter, $n$ elements of Perimeter were chosen with sampling probability proportional to its corresponding Area. Again, sampling with and sampling without replacement both were considered in our simulation. 
+
+\bigskip
+\setlength{\parskip}{0em}
+\noindent\textbf{\underline{The Algorithm for simulating the sampling distribution of Perimeter:}}
+
+\begin{enumerate}
+  \item Set $N$ = 2000; $Ratio$ between $N$ and $n$ are $\left( 5\%, 10\%, 30\%, 50\%, 70\%, 95\% \right)$; \textit{Repeated Times} = 1000 and $\mu$ = 1000. 
+  \item Generate $N$ samples from $Exp(\mu)$ distribution as subpopulation of Area and $N$ samples from $Beta(\alpha, \beta)$ as subpopulation of Circularity. Assume the observed Circularity data we have are representative enough for the population of Circularity, and $\alpha$ and $\beta$ are set to be 15 and 5 by observing the data we have.  
+  \item Plug the generated $N$ elements of Area and $N$ elements of Circularity into the formula, $\text{Perimeter}=\sqrt{4\pi}\sqrt{\frac{\text{Area}}{\text{Circularity}}}$, and obtain $N$ elements of Perimeter. Calculate the mean of $N$ elements of Perimeter, ${\mu}_{P}$, and treat it as the true mean of Perimeter. 
+  \item Sample a set of samples with size $n$ from subpopulation of Perimeter with sampling probability proportional to Area with and without replacement. $n$ is the product of $N$ and a certain $Ratio$.
+  \item For each set of samples, calculate the candidate estimators: Arithmetic Mean (AM), Weighted Mean (WM), Delta Method Estimator (DME), 2nd Order Taylor's Approximation Estimator (2TAE).
+  \item Repeat 3. 4. for the set \textit{Repeated Times} for each $Ratio$. 
+  \item Calculate the Mean, Standard Deviation and Root MSE for each candidate estimator. Also draw plots of sampling distributions for each candidate estimator.
+\end{enumerate}
+
+\newpage
+
+\subsection{Results for the simulation study}
+After repeating sampling with and without replacement, sampling distribution of each candidate estimator was constructed and their Biasedness, Standard Deviation and Root MSE were calculated. Figure~\ref{fig_dis_size}, Table~\ref{tab_size_est}, Figure~\ref{fig_dis_per}, and Table~\ref{tab_per_est} shows that when sampling with replacement, MLE and 2TAE are always the best estimators for ${\mu}_{A}$ and ${\mu}_{P}$ and when sample size becomes larger, their performance on standard deviation (Std.) would also become better. As for the performance of AM, like our expectation, severely overestimates the true mean no matter how sample size changes. Conversly, when it is sampling without replacement, the performance of MLE and 2TAE estimators are not worse only when sample size compared to population size is small since when sample size is small, sampling without replacement is similar to sampling with replacement. For AM, even though its expected value approximates to the true mean as sample size becomes larger, it is still a biased estimator if the sample size is not equal to the population size.
+
+To sum up, in this simulation, when it is sampling with replacement, MLE and the 2TAE perform best and AM has the worst performance. Nevertheless, MLE and 2TAE can only be obtained under strong assumptions on distributions of Area and Circularity. Hence, we also include WM in our following distribution for its sufficient performance and its nonparametric assumption. 
+
+\begin{figure}[!htbp]
+\centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=8>>=
+  #Sampling without replacement - Perimeter ####
+datt=read.csv("/Users/chou/Google Drive/UMN2014-2016/Spring2016/Plan B/final/clean_dat.csv",header=TRUE)
+
+# SETTING ARGUMENTS 
+N=2000
+ratio=c(0.05,0.1,0.3,0.5,0.7,0.95)
+n=N*ratio
+mean.size=1000
+runs=100
+
+# SIMULATION, SAMPLING 
+set.seed(12345)
+sub.pop.area=rexp(N,rate=1/mean.size)
+true.mean.size=mean(sub.pop.area) #985.7484
+
+sample.mean.area=array(NA, dim=c(runs,3,length(n)))
+dimnames(sample.mean.area)=list(NULL,c("AM","WM","MLE"),n)
+for (j in 1:length(n)){
+  for (i in 1:runs){
+    sample=sample(sub.pop.area,n[j],prob=sub.pop.area,replace=TRUE)
+    
+    w=sum(sample)/sample 
+    
+    a.m=mean(sample) #Arithmetic mean
+    w.m=sum(sample*w)/sum(w) # Weighted mean
+    a.mm=mean(sample)/2 #MLE 
+    
+    sample.mean.area[i,,j]=c(a.m,w.m,a.mm)
+  }
+}
+
+library(reshape2)
+library(scales)
+library(plyr)
+sample.mean.l.area=melt(sample.mean.area)
+sample.mean.l.area[,3]=
+  factor(percent(sample.mean.l.area[,3]/N),
+  levels = c("5%","10%","30%","50%","70%","95%"))
+sample.mean.l.area[,3]=revalue(sample.mean.l.area[,3],
+   c("5%"="Ratio=5%","10%"="Ratio=10%",
+     "30%"="Ratio=30%","50%"="Ratio=50%",
+     "70%"="Ratio=70%","95%"="Ratio=95%"))
+colnames(sample.mean.l.area)=c("nn","Estimator","percent","value")
+
+#round(true.mean.size,2) #985.75
+library(ggplot2)
+g_area_wr=ggplot(sample.mean.l.area, 
+                 aes(x=value,colour=Estimator))+
+  geom_line(aes(color=Estimator), 
+            stat="density", size=0.6)+
+  geom_vline(xintercept = true.mean.size, 
+             colour= "#D55E00", 
+             size=0.9, linetype=2)+
+  facet_wrap(~percent,ncol=1)+
+  ggtitle("Sampling With Replacement")+
+  labs(x = expression(paste(mu["A"])))
+@
+  \end{figure}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+  # LISTS for EstimatorS ####
+array.mean.area=array(NA,dim=c(3,3,length(n)))
+for (i in 1:length(n)){
+  array.mean.area[,1,i]=
+    apply(sample.mean.area[,,i],2,mean)-true.mean.size
+  array.mean.area[,2,i]=apply(sample.mean.area[,,i],2,sd)
+  array.mean.area[,3,i]=
+    sqrt(array.mean.area[,1,i]^2+array.mean.area[,2,i])
+}
+
+dimnames(array.mean.area)=list(c("AM","WM","MLE"),
+                    c("Bias","Std. Dev.","Root MSE"),
+                    c(paste("true.mean.size=",
+                      round(true.mean.size,3),
+                    "Ratio=",percent(n/N),sep=" ")))
+x=vector()
+for (i in 1:length(n)) x=rbind(x,array.mean.area[,,i])
+x=round(x,1)
+Estimator=rownames(x)
+r=percent(ratio*N/N)
+Ratio=c(r[1],NA,NA,r[2],NA,NA,r[3],NA,NA,
+        r[4],NA,NA,r[5],NA,NA,r[6],NA,NA)
+t_size_inf=cbind(Ratio,Estimator,x)
+@
+  
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=8>>=
+  # SETTING ARGUMENTS ####
+N=2000
+ratio=c(0.05,0.1,0.3,0.5,0.7,0.95)
+n=N*ratio
+mean.size=1000
+runs=100
+
+# SIMULATION, SAMPLING ####
+set.seed(12345)
+sub.pop.area=rexp(N,rate=1/mean.size)
+true.mean.size=mean(sub.pop.area)#985.7484
+
+sample.mean.area=array(NA, dim=c(runs,3,length(n)))
+dimnames(sample.mean.area)=list(NULL,c("AM","WM","MLE"),n)
+for (j in 1:length(n)){
+  for (i in 1:runs){
+    sample=sample(sub.pop.area,n[j],prob=sub.pop.area,replace=FALSE)
+    
+    w=sum(sample)/sample 
+    
+    a.m=mean(sample) #Arithmetic mean
+    w.m=sum(sample*w)/sum(w) # Weighted mean
+    a.mm=mean(sample)/2 #MLE 
+    
+    sample.mean.area[i,,j]<-c(a.m,w.m,a.mm)
+  }
+}
+library(reshape2)
+library(plyr)
+sample.mean.l.area=melt(sample.mean.area)
+sample.mean.l.area[,3]=
+  factor(percent(sample.mean.l.area[,3]/N),
+  levels = c("5%","10%","30%","50%","70%","95%"))
+sample.mean.l.area[,3]=revalue(sample.mean.l.area[,3],
+  c("5%"="Ratio=5%","10%"="Ratio=10%",
+    "30%"="Ratio=30%","50%"="Ratio=50%",
+    "70%"="Ratio=70%","95%"="Ratio=95%"))
+colnames(sample.mean.l.area)=c("nn","Estimator","percent","value")
+
+#round(true.mean.size,2) #985.75
+library(ggplot2)
+g_area_wor=ggplot(sample.mean.l.area, aes(x=value,
+          colour=Estimator))+
+  geom_line(aes(color=Estimator), stat="density", 
+            size=0.6)+
+  geom_vline(xintercept = true.mean.size, 
+             colour= "#D55E00", size=0.9, linetype=2)+
+  facet_wrap(~percent,ncol=1,scales = "free_y")+
+  ggtitle("Sampling Without Replacement")+
+  labs(x = expression(paste(mu["A"])))
+
+image.area=list(g_area_wr,g_area_wor)
+library(Rmisc)
+multiplot(plotlist = image.area, cols = 2)
+@
+  \caption{Sampling Distributions for Area with Different Ratios, N=2000, ${\mu}_{A}$=985.75}
+\label{fig_dis_size}
+\end{figure}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+# LISTS for EstimatorS ####
+array.mean.area=array(NA,dim=c(3,3,length(n)))
+for (i in 1:length(n)){
+  array.mean.area[,1,i]=apply(sample.mean.area[,,i],
+                              2,mean)-true.mean.size
+  array.mean.area[,2,i]=apply(sample.mean.area[,,i],2,sd)
+  array.mean.area[,3,i]=sqrt(array.mean.area[,1,i]^2+
+                               array.mean.area[,2,i])
+}
+
+dimnames(array.mean.area)=list(c("AM","WM","MLE"),
+          c("Bias","Std. Dev.","Root MSE"),
+          c(paste("true.mean.size=",
+              round(true.mean.size,3),"n=",n,sep=" ")))
+x=vector()
+for (i in 1:length(n)) x=rbind(x,array.mean.area[,,i])
+x=formatC(x,,digit=2,format="f")
+r=percent(ratio*N/N)
+Ratio=c(r[1],NA,NA,r[2],NA,NA,r[3],NA,NA,
+        r[4],NA,NA,r[5],NA,NA,r[6],NA,NA)
+Estimator=rownames(x)
+t_size_f=cbind(Ratio,Estimator,x)
+
+library(Hmisc)
+latex(cbind(t_size_inf,t_size_f),rowname = NULL, file= "", 
+      label="tab_size_est",
+      col.just= rep(c("c","c","r","r","r"),2), 
+      caption.loc=c("bottom"),
+      cgroup=c("Sampling WITH Replacement",
+               "Sampling WITHOUT Replacement"),
+      caption="Performance Table for Area",
+      size="small")
+@
+  
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=8>>=
+# SETTING ARGUMENTS (Same us size_infinite) ####
+N=2000
+ratio=c(0.05,0.1,0.3,0.5,0.7,0.95)
+n=N*ratio
+mean.size=1000
+runs=1000
+
+sh1=15
+sh2=5
+
+# SIMULATION, SAMPLING ####
+set.seed(12345)
+sub.pop.area=rexp(N,rate=1/mean.size)
+true.mean.size=mean(sub.pop.area) #985.7484
+
+sub.pop.cir=rbeta(length(sub.pop.area),shape1=sh1,shape2=sh2)
+true.mean.cir=mean(sub.pop.cir) #0.7515133
+
+sub.pop.per=sqrt(4*pi)*sqrt(sub.pop.area/sub.pop.cir)
+true.mean.per=mean(sub.pop.per) #114.2401
+
+sim.data=data.frame(sub.pop.area,sub.pop.per,sub.pop.cir)
+colnames(sim.data)=c("Area","Perimeter","Circularity")
+par(mfrow=c(1,1))
+
+sample.mean.per=array(NA, dim=c(runs,4,length(n)))
+dimnames(sample.mean.per)=list(NULL,c("AM","WM", "DME","2TAE"),n)
+for (j in 1:length(n)){
+  for (i in 1:runs){
+    sample=sim.data[sample(1:dim(sim.data)[1],n[j],prob=sim.data[,1],replace=TRUE),]
+    
+    w=sum(sample$Area)/sample$Area 
+    c.m=mean(sample$Circularity)
+    a.m=mean(sample$Area) 
+    v.m=var(sample$Area)
+    v.c=var(sample$Circularity)
+    
+    sh1.h=c.m^2*(1-c.m)/v.c - c.m
+    sh2.h=c.m*(1-c.m)^2/v.c -(1-c.m)
+    
+    p.m=mean(sample$Perimeter) #Arithmetic mean
+    p.w.m=sum(sample$Perimeter*w)/sum(w) # Weighted mean
+    p.dme=sqrt(4*pi)*sqrt(a.m/(2*c.m)) #Delta Method Estimator
+    #2nd Order Taylor's Expansion Estimator
+    p_2_approx=sqrt(4*pi)*(sqrt(a.m/(2*c.m))-
+            (1/8)*(a.m/2)^(-3/2)*(c.m)^(-1/2)*(v.m/2)+
+            (3/8)*(a.m/2)^(1/2)*(c.m)^(-5/2)*(v.c)) 
+    
+    sample.mean.per[i,,j]=c(p.m, p.w.m, p.dme,p_2_approx)
+  }
+}
+library(reshape2)
+library(plyr)
+sample.mean.l.per=melt(sample.mean.per)
+sample.mean.l.per[,3]=
+  factor(percent(sample.mean.l.per[,3]/N),
+  levels = c("5%","10%","30%","50%","70%","95%"))
+sample.mean.l.per[,3]=revalue(sample.mean.l.per[,3],
+  c("5%"="Ratio=5%","10%"="Ratio=10%",
+    "30%"="Ratio=30%","50%"="Ratio=50%",
+    "70%"="Ratio=70%","95%"="Ratio=95%"))
+colnames(sample.mean.l.per)=c("nn","Estimator","percent","value")
+
+#round(true.mean.per,2) #114.24
+library(ggplot2)
+g_per_wr=ggplot(sample.mean.l.per, aes(x=value,
+                                       colour=Estimator))+
+  geom_line(aes(color=Estimator), stat="density", 
+            size=0.6)+
+  geom_vline(xintercept = true.mean.per, 
+             colour= "#D55E00", size=0.9, linetype=2)+
+  facet_wrap(~percent,ncol=1)+
+  ggtitle("Sampling With Replacement")+
+  labs(x = expression(paste(mu["P"])))
+@
+  \end{figure}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+# LISTS for EstimatorS ####
+array.mean.per=array(NA,dim=c(4,3,length(n)))
+for (i in 1:length(n)){
+  array.mean.per[,1,i]=
+    apply(sample.mean.per[,,i],2,mean)-true.mean.per
+  array.mean.per[,2,i]=apply(sample.mean.per[,,i],2,sd)
+  array.mean.per[,3,i]=
+    sqrt(array.mean.per[,1,i]^2+array.mean.per[,2,i])
+}
+
+dimnames(array.mean.per)=list(c("AM","WM","DME", "2TAE"),
+    c("Bias","Std. Dev.","Root MSE"),
+    c(paste("true.mean.per=",round(true.mean.per,3),
+            "n=",n,sep=" ")))
+
+x=vector()
+for (i in 1:length(n)) x=rbind(x,array.mean.per[,,i])
+x=formatC(x,digit=2,format="f")
+r=percent(ratio*N/N)
+Ratio=c(r[1],NA,NA,NA,r[2],NA,NA,NA,r[3],NA,NA,NA,
+        r[4],NA,NA,NA,r[5],NA,NA,NA,r[6],NA,NA,NA)
+Estimator=rownames(x)
+t_per_inf=cbind(Ratio,Estimator,x)
+@
+  
+\begin{figure}[!htbp]
+\centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=8>>=
+  # SETTING ARGUMENTS (Same us size_finite) ####
+N=2000
+ratio=c(0.05,0.1,0.3,0.5,0.7,0.95)
+n=N*ratio
+mean.size=1000
+runs=1000
+
+sh1=15
+sh2=5
+
+# SIMULATION, SAMPLING ####
+set.seed(12345)
+sub.pop.area=rexp(N,rate=1/mean.size)
+true.mean.size=mean(sub.pop.area) #985.7484
+
+sub.pop.cir=rbeta(length(sub.pop.area),shape1=sh1,shape2=sh2)
+true.mean.cir=mean(sub.pop.cir) #0.7515133
+
+sub.pop.per=sqrt(4*pi)*sqrt(sub.pop.area/sub.pop.cir)
+true.mean.per=mean(sub.pop.per) #114.2401
+
+sim.data=data.frame(sub.pop.area,sub.pop.per,sub.pop.cir)
+colnames(sim.data)=c("Area","Perimeter","Circularity")
+par(mfrow=c(1,1))
+
+sample.mean.per=array(NA, dim=c(runs,4,length(n)))
+dimnames(sample.mean.per)=list(NULL,c("AM","WM","DME","2TAE"),n)
+for (j in 1:length(n)){
+  for (i in 1:runs){
+    sample=sim.data[sample(1:dim(sim.data)[1],n[j],prob=sim.data[,1],replace=FALSE),]
+    
+    w=sum(sample$Area)/sample$Area 
+    c.m=mean(sample$Circularity)
+    a.m=mean(sample$Area) 
+    v.m=var(sample$Area)
+    v.c=var(sample$Circularity)
+    
+    sh1.h=c.m^2*(1-c.m)/v.c - c.m
+    sh2.h=c.m*(1-c.m)^2/v.c -(1-c.m)
+    
+    p.m=mean(sample$Perimeter) #Arithmetic mean
+    p.w.m=sum(sample$Perimeter*w)/sum(w) # Weighted mean
+    p.dme=sqrt(4*pi)*sqrt(a.m/(2*c.m)) #Delta Method Estimator
+    #2nd Order Taylor's Expansion Estimator
+    p_2_approx=sqrt(4*pi)*(sqrt(a.m/(2*c.m))-
+        (1/8)*(a.m/2)^(-3/2)*(c.m)^(-1/2)*(v.m/2)+
+        (3/8)*(a.m/2)^(1/2)*(c.m)^(-5/2)*(v.c)) 
+    
+    sample.mean.per[i,,j]=c(p.m, p.w.m, p.dme ,p_2_approx)
+  }
+}
+
+sample.mean.l.per=melt(sample.mean.per)
+sample.mean.l.per[,3]=
+  factor(percent(sample.mean.l.per[,3]/N),
+  levels = c("5%","10%","30%","50%","70%","95%"))
+sample.mean.l.per[,3]=revalue(sample.mean.l.per[,3],
+  c("5%"="Ratio=5%","10%"="Ratio=10%",
+    "30%"="Ratio=30%","50%"="Ratio=50%",
+    "70%"="Ratio=70%","95%"="Ratio=95%"))
+colnames(sample.mean.l.per)=c("nn","Estimator","percent","value")
+
+library(ggplot2)
+g_per_wor=
+  ggplot(sample.mean.l.per, aes(x=value,colour=Estimator))+
+  geom_line(aes(color=Estimator), stat="density", 
+            size=0.6)+
+  geom_vline(xintercept = true.mean.per, 
+             colour= "#D55E00", 
+             size=0.9, linetype=2)+
+  facet_wrap(~percent,ncol=1,scales = "free_y")+
+  ggtitle("Sampling Without Replacement")+
+  labs(x = expression(paste(mu["P"])))
+
+image.per=list(g_per_wr,g_per_wor)
+library(Rmisc)
+multiplot(plotlist = image.per, cols = 2)
+@
+  \caption{Sampling Distributions for Perimeter with Different Ratios, N=2000, ${\mu}_{P}$=114.24}  
+\label{fig_dis_per}
+\end{figure}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+  # LISTS for EstimatorS ####
+array.mean.per=array(NA,dim=c(4,3,length(n)))
+for (i in 1:length(n)){
+  array.mean.per[,1,i]=
+    apply(sample.mean.per[,,i],2,mean)-true.mean.per
+  array.mean.per[,2,i]=apply(sample.mean.per[,,i],2,sd)
+  array.mean.per[,3,i]=
+    sqrt(array.mean.per[,1,i]^2+array.mean.per[,2,i])
+}
+
+dimnames(array.mean.per)=list(c("AM","WM","DME", "2TAE"),
+      c("Bias","Std. Dev.","Root MSE"),
+      c(paste("true.mean.per=",
+              round(true.mean.per,3),"n=",n,sep=" ")))
+
+x=vector()
+for (i in 1:length(n)) x=rbind(x,array.mean.per[,,i])
+x=formatC(x,digit=2,format="f")
+r=percent(ratio*N/N)
+Ratio=c(r[1],NA,NA,NA,r[2],NA,NA,NA,r[3],NA,NA,NA,
+        r[4],NA,NA,NA,r[5],NA,NA,NA,r[6],NA,NA,NA)
+Estimator=rownames(x)
+t_per_f=cbind(Ratio,Estimator,x)
+
+latex(cbind(t_per_inf,t_per_f),rowname = NULL, file= "", 
+      col.just= rep(c("c","c","r","r","r"),2), 
+      caption.loc=c("bottom"),
+      label="tab_per_est",
+      cgroup=c("Sampling WITH Replacement",
+               "Sampling WITHOUT Replacement"),
+      caption="Performance Table for Perimeter",
+      size="footnotesize")
+@
+  
+
+\end{document}

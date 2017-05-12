@@ -1,0 +1,283 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+\usepackage{caption}
+\captionsetup[figure]{labelfont=bf}
+\captionsetup[table]{labelfont=bf,position=below}
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+\usepackage[skip=0pt]{caption}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+
+\setcounter{section}{2} 
+\setcounter{page}{8}
+
+\section{Data}
+\subsection{Sampling Procedure}
+
+A young mouse muscle fiber cell was picked and then magnified to 166 different images by using Transmission Electron Microscope (TEM) (Figure~\ref{cell}). \\
+
+\bigbreak
+\begin{figure}[h!]
+  \includegraphics [width=11cm, scale=1.5]{cell.png}
+  \centering
+  \caption{A young mouse muscle fiber cell. These graphs is about how the 166 different images were defined on coordinate.} 
+  \label{cell}
+\end{figure}
+
+
+For each location (Figure~\ref{location}), images were divided into two groups, Subsarcolemmal group and Interfibrillar group. In each group, one image was randomly picked and 20 mitochondria were chosen from the image. Due to high costs of labor on doing simple random sampling, mitochondria were chosen by other sampling method. A list of random two-dimensional coordinates was generated and the mitochondria were chosen as sample if their area in the photo included one or more generated coordinates (Figure~\ref{mitochondria}). \\
+
+\bigbreak
+\begin{figure}[h!]
+  \centering
+  \includegraphics [width=11cm, scale=1.5]{location.png}
+  \caption{Definition of Locations. Those falls in `` \{ '' are defined as being in Proximal end, in `` [ '' are being in Distal end, and the rest are being in Middle part.}
+  \label{location}
+\end{figure}
+
+\bigbreak
+\bigbreak
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics [width=11cm, scale=1.5]{mitochondria.png}
+  \caption{A sample of Mitochondria}
+  \label{mitochondria}
+\end{figure}
+
+\clearpage
+\subsection{Data Description}
+The following are the brief introduction about the attributions of each mitochondrion in this set of data. 
+
+\setlength{\parskip}{0em}
+\noindent\textbf{\underline{About locations and groups}}
+\begin{itemize}
+  \item Locations: \\
+  The levels are Proximal end, Middle and Distal end.
+  \item Groups: \\
+  The levels are Subsarcolemmal and Interfibrillar groups. 
+  \item Image ID number: \\
+  From which image the mitochondrion is selected. 
+  \item Mitochondrion ID number: \\
+  The ID number of a mitochondrion in an image. 
+\end{itemize}
+
+\noindent\textbf{\underline{About the morphological properties}}
+\begin{itemize}
+  \item Area $({\mu m}^{2})$: \\
+  The area occupied by a mitochondrion in an image. 
+  \item Perimeter $(\mu m)$: \\
+  The length of the boundary of a mitochondrion in an image. 
+  \item Circularity: \\
+  Circularity is equal to $\frac{4\pi Area}{{Perimeter}^{2}}$. Measuring the     resemblance of a mitochondrion to a circle. The range of circularity is     between 0 and 1.  1 means a perfect circle. 
+  \item Aspect Ratio: \\
+  Aspect Ratio is equal to $\frac{Length}{Width}$. If $AR\leq 2$, it is considered short; if $2<AR\leq 4$, intermediate; if $AR>4$, long.  
+\end{itemize}
+
+\setlength{\parskip}{2em}
+\subsection{Descriptive Statistics}
+To have a rough idea about how Properties of mitochondria differ over Locations in the set of data, the following four summary tables and eight figures provide information of descriptive statistics and distribution for each Property. 
+
+As can be seen in Table~\ref{tab_area_pmd}, Figure~\ref{fig_area_pmd}, Table~\ref{tab_per_pmd}, Figure~\ref{fig_peri_pmd}, Table~\ref{tab_cir_pmd}, Figure~\ref{fig_cir_pmd}, the mitochondria at Distal part have the leftmost distributions of Area, Perimeter and Circularity; on the contrary, the ones at the Middle part have the rightmost distributions. This can be explained that generally Area, Perimeter and Circularity of mitochondria at Distal part are the smallest and the ones at the Middle part are the largest compared to the other two locations. Figure~\ref{fig_ar_pmd},  Table~\ref{tab_ar_pmd} show that different from other Properties, the mitochondria in Middle part generally have the lowest Aspect Ratio than ones in Proximal and Distal part. 
+
+\newpage
+<<echo=FALSE, results='asis', message = FALSE>>=
+datt=read.csv("/Users/chou/Google Drive/UMN2014-2016/Spring2016/Plan B/final/clean_dat.csv",header=TRUE)
+levels(datt$PMD)=list(P="P",M="M",D="D")
+
+library(plyr)
+table_A=ddply(datt, ~PMD, summarise, 
+            Mean=mean(Area), 
+            Sd=sd(Area), min=min(Area), 
+            Q1=quantile(Area,0.25),
+            Median=quantile(Area,0.5),
+            Q3=quantile(Area,0.75), Max=max(Area),
+            .drop=FALSE)
+table_A[,2:8]=round(table_A[,2:8],2)
+table_A[,1]=c("Proximal","Middle","Distal")
+
+library(Hmisc)
+latex(table_A,rowname = NULL, file= "", 
+      label="tab_area_pmd", col.just= rep("c",9), 
+      caption.loc=c("bottom"),
+      caption="Summary table for Area",
+      where= "!htbp",size="footnotesize")
+@
+ \vspace{0.5cm}
+<<echo=FALSE, results='asis', message = FALSE>>=
+library(plyr)
+table_A=ddply(datt, ~PMD, summarise, 
+            Mean=mean(Perimeter), 
+            Sd=sd(Perimeter), min=min(Perimeter), 
+            Q1=quantile(Perimeter,0.25),
+            Median=quantile(Perimeter,0.5),
+            Q3=quantile(Perimeter,0.75), Max=max(Perimeter),
+            .drop=FALSE)
+table_A[,2:8]=round(table_A[,2:8],2)
+table_A[,1]=c("Proximal","Middle","Distal")
+
+latex(table_A,rowname = NULL, file= "", 
+      label="tab_per_pmd", 
+      col.just= rep("c",9), 
+      caption.loc=c("bottom"),
+    caption="Summary table for Perimeter",
+    where= "!htbp", size="footnotesize")
+@
+ \vspace{0.5cm}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+library(plyr)
+table_A=ddply(datt, ~PMD, summarise, 
+            Mean=mean(Circularity), 
+            Sd=sd(Circularity), min=min(Circularity), 
+            Q1=quantile(Circularity,0.25),
+            Median=quantile(Circularity,0.5),
+            Q3=quantile(Circularity,0.75), Max=max(Circularity),
+            .drop=FALSE)
+table_A[,2:8]=round(table_A[,2:8],2)
+table_A[,1]=c("Proximal","Middle","Distal")
+
+latex(table_A,rowname = NULL, file= "", 
+      label="tab_cir_pmd", col.just= rep("c",9), 
+      caption.loc=c("bottom"),
+      caption="Summary table for Circularity",
+      where= "!htbp",size="footnotesize")
+@
+ \vspace{0.5cm}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+table_A=ddply(datt, ~PMD, summarise, 
+            Mean=mean(Aspect.Ratio), 
+            Sd=sd(Aspect.Ratio), min=min(Aspect.Ratio), 
+            Q1=quantile(Aspect.Ratio,0.25),
+            Median=quantile(Aspect.Ratio,0.5),
+            Q3=quantile(Aspect.Ratio,0.75), Max=max(Aspect.Ratio),
+            .drop=FALSE)
+table_A[,2:8]=round(table_A[,2:8],2)
+table_A[,1]=c("Proximal","Middle","Distal")
+
+
+latex(table_A,rowname = NULL, file= "", 
+      label="tab_ar_pmd", col.just= rep("c",9), 
+      caption.loc=c("bottom"),
+      caption="Summary table for Aspect Ratio",
+      where= "!htbp", size="footnotesize")
+@
+
+\newpage
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=6, fig.height=1.38>>=
+library(ggplot2)
+hist_PMD_a=ggplot(datt, aes(x=Area, color=PMD, fill=PMD))+ 
+  # scale_fill_discrete(name="Location",
+  #                     breaks=c("P", "M", "D"),
+  #                     labels=c("Proximal", "Middle",
+  #                              "Distal"))+
+  # scale_color_discrete(name="Location",
+  #                     breaks=c("P", "M", "D"),
+  #                     labels=c("Proximal", "Middle",
+  #                              "Distal"))+
+  geom_histogram(aes(y=..density..), alpha=0.5, 
+                 position="identity")+
+  geom_density(alpha=.3) 
+  #ggtitle("Figure A.1 : Histogram of Area by Locations")
+
+box_PMD_a=ggplot(datt, aes(x=PMD, y=Area, fill=PMD)) + 
+  geom_boxplot() +
+  # scale_fill_discrete(name="Location",
+  #                     breaks=c("P", "M", "D"),
+  #                     labels=c("Proximal", "Middle",
+  #                              "Distal"))+
+  # scale_x_discrete(name="Location",
+  #                     breaks=c("P", "M", "D"),
+  #                     labels=c("Proximal", "Middle",
+  #                              "Distal"))+
+  geom_point(position = position_jitter(h=0,w=0.3)) 
+  #ggtitle("Figure A.2 : Boxplot of Area by Locations")
+ 
+library(Rmisc)
+multiplot(plotlist = list(hist_PMD_a,box_PMD_a), cols = 2)
+@
+  \caption{Histogram and Boxplot for Area by Locations}
+  \label{fig_area_pmd}
+\end{figure}
+\vspace{0.5cm}
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=6, fig.height=1.38>>=
+hist_PMD_p=ggplot(datt, aes(x=Perimeter, color=PMD, 
+                            fill=PMD))+ 
+  geom_histogram(aes(y=..density..), alpha=0.5, 
+                 position="identity")+
+  geom_density(alpha=.2) 
+  #ggtitle("Figure P.1 : Histogram of Perimeter by Locations")
+
+box_PMD_p=ggplot(datt, aes(x=PMD, y=Perimeter, fill=PMD)) +
+  geom_boxplot()+
+  geom_point(position = position_jitter(h=0,w=0.3))
+  #ggtitle("Figure P.2 : Boxplot of Perimeter by Locations")+
+
+library(Rmisc)
+multiplot(plotlist = list(hist_PMD_p,box_PMD_p), cols = 2)
+@
+  \caption{Histogram and Boxplot for Perimeter by Locations}
+  \label{fig_peri_pmd}
+\end{figure}
+\vspace{0.5cm}
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=6, fig.height=1.38>>=
+hist_PMD_c=ggplot(datt, aes(x=Circularity, color=PMD, 
+                            fill=PMD))+ 
+  geom_histogram(aes(y=..density..), alpha=0.5, 
+                 position="identity")+
+  geom_density(alpha=.2) 
+  #ggtitle("Figure C.1 : Histogram of Circularity by Locations")
+
+box_PMD_c=ggplot(datt,aes(x=PMD,y=Circularity,fill=PMD)) + 
+  geom_boxplot()+
+  geom_point(position = position_jitter(h=0,w=0.3))
+  #ggtitle("Figure C.2 : Boxplot of Circularity by Locations")+
+  
+multiplot(plotlist = list(hist_PMD_c,box_PMD_c), cols = 2)
+@
+  \caption{Histogram and Boxplot for Circularity by Locations}
+  \label{fig_cir_pmd}
+\end{figure}
+\vspace{0.5cm}
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=6, fig.height=1.38>>=
+hist_PMD_ar=ggplot(datt, aes(x=Aspect.Ratio, color=PMD,
+                             fill=PMD))+ 
+  geom_histogram(aes(y=..density..), alpha=0.5, 
+                 position="identity")+
+  geom_density(alpha=.2) 
+  #ggtitle("Figure AR.1 : Histogram of Aspect Ratio by Locations")
+
+box_PMD_ar=ggplot(datt, aes(x=PMD, y=Aspect.Ratio, 
+                            fill=PMD)) + 
+  geom_boxplot()+
+  geom_point(position = position_jitter(h=0,w=0.3))
+  #ggtitle("Figure AR.2 : Boxplot of Aspect Ratio by Locations")+
+ 
+multiplot(plotlist = list(hist_PMD_ar,box_PMD_ar), cols = 2)
+@
+  \caption{Histogram and Boxplot for Aspect Ratio by Locations}
+  \label{fig_ar_pmd}
+\end{figure}
+\end{document}

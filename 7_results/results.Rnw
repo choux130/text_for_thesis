@@ -1,0 +1,1219 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+\usepackage{booktabs,multirow}%for big bracket
+\usepackage{caption}
+\captionsetup[figure]{labelfont=bf}
+\captionsetup[table]{labelfont=bf,position=below}
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\setcounter{section}{6}
+\setcounter{page}{28}
+
+\section{Results}
+\subsection{Hypothesis Tests}
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+####################
+####### Area #######
+####################
+# SET DATA ####
+datt=read.csv("/Users/chou/Google Drive/UMN2014-2016/Spring2016/Plan B/final/clean_dat.csv",header=TRUE)
+datt.area=datt$Area
+datt.area_p=datt[datt$PMD=="P",]$Area
+datt.area_m=datt[datt$PMD=="M",]$Area
+datt.area_d=datt[datt$PMD=="D",]$Area
+
+## All weighted means ####
+fun_wm.area=function(data.area, data.area_p, data.area_m, data.area_d){
+  w.area.all=sum(data.area)/data.area
+  wm.area.all=sum(data.area*w.area.all)/sum(w.area.all) 
+  
+  w.area.p=sum(data.area_p)/data.area_p
+  wm.area.p=sum(data.area_p*w.area.p)/sum(w.area.p) 
+  w.area.m=sum(data.area_m)/data.area_m
+  wm.area.m=sum(data.area_m*w.area.m)/sum(w.area.m) 
+  w.area.d=sum(data.area_d)/data.area_d
+  wm.area.d=sum(data.area_d*w.area.d)/sum(w.area.d) 
+  
+  output_wm.area=c(wm.area.all,wm.area.p,wm.area.m,wm.area.d)
+  return(output_wm.area)
+}
+wm.area=fun_wm.area(datt.area, datt.area_p, datt.area_m, datt.area_d)
+names(wm.area)=c("wm.area.all","wm.area.p","wm.area.m","wm.area.d")
+# wm.area.all   wm.area.p   wm.area.m   wm.area.d 
+#   1602.977    1928.229    2381.802    1071.746 
+
+## All MLE ####
+mle.area.all=mean(datt.area)/2 
+mle.area.p=mean(datt.area_p)/2 
+mle.area.m=mean(datt.area_m)/2 
+mle.area.d=mean(datt.area_d)/2 
+mle.area=c(mle.area.all,mle.area.p,mle.area.m,mle.area.d)
+names(mle.area)=c("mle.area.all","mle.area.p","mle.area.m","mle.area.d")
+# mle.area.all   mle.area.p   mle.area.m   mle.area.d 
+#   1183.0417    1221.5875    1478.7500     848.7875 
+
+# PERMUTATION TEST ####
+## Setting Arguments ####
+set.seed(12345)
+reps=10000
+
+set_f_wm.area = numeric(length=reps)
+set_t_wm.area.pm = numeric(length=reps)
+set_t_wm.area.md = numeric(length=reps)
+set_t_wm.area.pd = numeric(length=reps)
+
+set_f_mle.area = numeric(length=reps)
+set_t_mle.area.pm = numeric(length=reps)
+set_t_mle.area.md = numeric(length=reps)
+set_t_mle.area.pd = numeric(length=reps)
+
+## Permutation Test Algorithm ####
+for (i in 1:reps){
+  ### Setting data
+  permu.area=sample(datt$Area, dim(datt)[1], replace=FALSE)
+  permu.dat=data.frame(PMD=datt$PMD,Area=permu.area)
+  
+  permu.dat.area=permu.dat$Area
+  permu.dat.area_p=permu.dat[permu.dat$PMD=="P",]$Area
+  permu.dat.area_m=permu.dat[permu.dat$PMD=="M",]$Area
+  permu.dat.area_d=permu.dat[permu.dat$PMD=="D",]$Area
+  
+  ### Calculating overall weighted mean and weighted mean by locations  
+  wm.area_permu=fun_wm.area(permu.dat.area, permu.dat.area_p, 
+                            permu.dat.area_m, permu.dat.area_d)
+  
+  ### Calculating overall mle and mle by locations
+  mle.area_permu=c(mean(permu.dat.area)/2,mean(permu.dat.area_p)/2,
+                   mean(permu.dat.area_m)/2,mean(permu.dat.area_d)/2)
+  
+  ### Save the f and t values
+  set_f_wm.area[i] = sum((wm.area_permu[2:4]-wm.area_permu[1])^2)
+  set_t_wm.area.pm[i] = wm.area_permu[2]-wm.area_permu[3]
+  set_t_wm.area.md[i] = wm.area_permu[3]-wm.area_permu[4]
+  set_t_wm.area.pd[i] = wm.area_permu[2]-wm.area_permu[4]
+  
+  
+  set_f_mle.area[i] = sum((mle.area_permu[2:4]-mle.area_permu[1])^2)
+  set_t_mle.area.pm[i] = mle.area_permu[2]-mle.area_permu[3]
+  set_t_mle.area.md[i] = mle.area_permu[3]-mle.area_permu[4]
+  set_t_mle.area.pd[i] = mle.area_permu[2]-mle.area_permu[4]
+}
+
+## P-value for the Permutation Tests ####
+### overall test ####
+f_wm.area = sum((wm.area[2:4] - wm.area[1])^2) # 994563.6
+f_mle.area= sum((mle.area[2:4] - mle.area[1])^2) # 200655
+
+p_f_wm.area=length(set_f_wm.area[set_f_wm.area>=f_wm.area])/reps 
+p_f_mle.area=length(set_f_mle.area[set_f_mle.area>=f_mle.area])/reps 
+p_f.area=c(p_f_wm.area, p_f_mle.area)
+names(p_f.area)=c("p_f_wm.area","p_f_mle.area")
+# p_f_wm.area p_f_mle.area 
+#   0e+00        1e-04 
+
+### pairwise tests ####
+#### P vs. M 
+t_wm.area.pm = unname(wm.area[2] - wm.area[3]) # -453.5734
+t_mle.area.pm = unname(mle.area[2] - mle.area[3]) # -257.1625
+
+p_t_wm.area.pm = 2*length(set_t_wm.area.pm[set_t_wm.area.pm<=t_wm.area.pm])/reps
+p_t_mle.area.pm = 2*length(set_t_mle.area.pm[set_t_mle.area.pm<=t_mle.area.pm])/reps
+p_t.area.pm = c(p_t_wm.area.pm, p_t_mle.area.pm)
+names(p_t.area.pm) = c("p_t_wm.area.pm","p_t_mle.area.pm")
+# p_t_wm.area.pm p_t_mle.area.pm 
+#    0.0976          0.0950 
+
+#### M vs. D
+t_wm.area.md = unname(wm.area[3] - wm.area[4]) # 1310.056
+t_mle.area.md = unname(mle.area[3] - mle.area[4]) # 629.9625
+
+p_t_wm.area.md = 2*length(set_t_wm.area.md[set_t_wm.area.md>=t_wm.area.md])/reps
+p_t_mle.area.md = 2*length(set_t_mle.area.md[set_t_mle.area.md>=t_mle.area.md])/reps
+p_t.area.md = c(p_t_wm.area.md, p_t_mle.area.md)
+names(p_t.area.md) = c("p_t_wm.area.md","p_t_mle.area.md")
+# p_t_wm.area.md p_t_mle.area.md 
+#    0e+00           2e-04 
+
+#### P vs. D
+t_wm.area.pd = unname(wm.area[2] - wm.area[4]) # 856.4828
+t_mle.area.pd = unname(mle.area[2] - mle.area[4]) # 372.8
+
+p_t_wm.area.pd = 2*length(set_t_wm.area.pd[set_t_wm.area.pd>=t_wm.area.pd])/reps
+p_t_mle.area.pd = 2*length(set_t_mle.area.pd[set_t_mle.area.pd>=t_mle.area.pd])/reps 
+p_t.area.pd = c(p_t_wm.area.pd, p_t_mle.area.pd)
+names(p_t.area.pd) = c("p_t_wm.area.pd","p_t_mle.area.pd")
+# p_t_wm.area.pd p_t_mle.area.pd 
+#    0.0022          0.0140 
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+#########################
+####### Perimeter #######
+#########################
+# SETTING DATA ####
+datt.area=datt$Area
+datt.area_p=datt[datt$PMD=="P",]$Area
+datt.area_m=datt[datt$PMD=="M",]$Area
+datt.area_d=datt[datt$PMD=="D",]$Area
+datt.per=datt$Perimeter
+datt.per_p=datt[datt$PMD=="P",]$Perimeter
+datt.per_m=datt[datt$PMD=="M",]$Perimeter
+datt.per_d=datt[datt$PMD=="D",]$Perimeter
+datt.cir=datt$Circularity
+datt.cir_p=datt[datt$PMD=="P",]$Circularity
+datt.cir_m=datt[datt$PMD=="M",]$Circularity
+datt.cir_d=datt[datt$PMD=="D",]$Circularity
+
+## All weighted mean ####
+fun_wm.per=function(data.area, data.per, data.area_p, data.per_p,
+                    data.area_m, data.per_m, 
+                    data.area_d, data.per_d){
+  w.per.all=sum(data.area)/data.area
+  wm.per.all=sum(data.per*w.per.all)/sum(w.per.all) #158.7518
+  
+  w.per.p=sum(data.area_p)/data.area_p
+  wm.per.p=sum(data.per_p*w.per.p)/sum(w.per.p) 
+  w.per.m=sum(data.area_m)/data.area_m
+  wm.per.m=sum(data.per_m*w.per.m)/sum(w.per.m) 
+  w.per.d=sum(data.area_d)/data.area_d
+  wm.per.d=sum(data.per_d*w.per.d)/sum(w.per.d) 
+  
+  output_wm.per=c(wm.per.all, wm.per.p, wm.per.m, wm.per.d)
+  return(output_wm.per)
+}
+wm.per=fun_wm.per(datt.area, datt.per, datt.area_p, datt.per_p,
+                  datt.area_m, datt.per_m, 
+                  datt.area_d, datt.per_d)
+names(wm.per)=c("wm.per.all","wm.per.p","wm.per.m","wm.per.d")
+# wm.per.all   wm.per.p   wm.per.m   wm.per.d 
+#   158.7518   176.5613   192.8953   133.4894 
+
+## All 2nd order Taylor's Approximation Estimator####
+fun1_stae.per=function(data.area, data.cir){
+  m.area=mean(data.area)
+  var.area=var(data.area)
+  m.cir=mean(data.cir)
+  var.cir=var(data.cir)
+  
+  output1_stae.per=sqrt(4*pi)*(sqrt(m.area/(2*m.cir))-
+                  (1/8)*(m.area/2)^(-3/2)*(m.cir)^(-1/2)*(var.area/2)+
+                  (3/8)*(m.area/2)^(1/2)*(m.cir)^(-5/2)*(var.cir)) 
+  return(output1_stae.per)
+}
+
+fun2_stae.per=function(data.area, data.cir,
+                       data.area_p, data.cir_p,
+                       data.area_m, data.cir_m,
+                       data.area_d, data.cir_d){
+  
+  output2_stae.per.all=fun1_stae.per(data.area, data.cir) #130.5544
+  
+  output2_stae.per.p=fun1_stae.per(data.area_p, data.cir_p) #130.5544
+  output2_stae.per.m=fun1_stae.per(data.area_m, data.cir_m) #130.5544
+  output2_stae.per.d=fun1_stae.per(data.area_d, data.cir_d) #130.5544
+  
+  output2_stae.per=c(output2_stae.per.all, output2_stae.per.p, 
+                     output2_stae.per.m, output2_stae.per.d)
+  return(output2_stae.per)
+}
+stae.per=fun2_stae.per(datt.area, datt.cir,
+                      datt.area_p, datt.cir_p,
+                      datt.area_m, datt.cir_m,
+                      datt.area_d, datt.cir_d)
+names(stae.per)=c("stae.per.all","stae.per.p","stae.per.m","stae.per.d")
+# stae.per.all   stae.per.p   stae.per.m   stae.per.d 
+#   130.5544     134.4383     147.9494     107.2606 
+
+# PERMUTATION TEST ####
+## Setting Arguments ####
+reps=10000
+set.seed(12345)
+
+set_f_wm.per = numeric(length=reps)
+set_t_wm.per.pm = numeric(length=reps)
+set_t_wm.per.md = numeric(length=reps)
+set_t_wm.per.pd = numeric(length=reps)
+
+set_f_stae.per = numeric(length=reps)
+set_t_stae.per.pm = numeric(length=reps)
+set_t_stae.per.md = numeric(length=reps)
+set_t_stae.per.pd = numeric(length=reps)
+
+## Permutation Test Algorithm ####
+for (i in 1:reps){
+  ### Setting data
+  permu.dat=datt[sample(1:dim(datt)[1], dim(datt)[1], replace=FALSE),11:13]
+  permu.dat=cbind(permu.dat, "PMD"=rep(c("P","M","D"),each=40))
+  
+  permu.dat.area=permu.dat$Area
+  permu.dat.area_p=permu.dat[permu.dat$PMD=="P",]$Area
+  permu.dat.area_m=permu.dat[permu.dat$PMD=="M",]$Area
+  permu.dat.area_d=permu.dat[permu.dat$PMD=="D",]$Area
+  permu.dat.per=permu.dat$Perimeter
+  permu.dat.per_p=permu.dat[permu.dat$PMD=="P",]$Perimeter
+  permu.dat.per_m=permu.dat[permu.dat$PMD=="M",]$Perimeter
+  permu.dat.per_d=permu.dat[permu.dat$PMD=="D",]$Perimeter
+  permu.dat.cir=permu.dat$Circularity
+  permu.dat.cir_p=permu.dat[permu.dat$PMD=="P",]$Circularity
+  permu.dat.cir_m=permu.dat[permu.dat$PMD=="M",]$Circularity
+  permu.dat.cir_d=permu.dat[permu.dat$PMD=="D",]$Circularity
+  
+  ### Calculating overall weighted mean and weighted mean by locations 
+  wm.per_permu = fun_wm.per(permu.dat.area, permu.dat.per, 
+                          permu.dat.area_p, permu.dat.per_p,
+                          permu.dat.area_m, permu.dat.per_m, 
+                          permu.dat.area_d, permu.dat.per_d)
+  
+  ## Calculating overall 2TAE and 2TAE by locations
+  stae.per_permu = fun2_stae.per(permu.dat.area, permu.dat.cir,
+                         permu.dat.area_p, permu.dat.cir_p,
+                         permu.dat.area_m, permu.dat.cir_m,
+                         permu.dat.area_d, permu.dat.cir_d)
+  
+  set_f_wm.per[i] = sum((wm.per_permu[2:4] - wm.per_permu[1])^2)
+  set_t_wm.per.pm[i] = wm.per_permu[2] - wm.per_permu[3]
+  set_t_wm.per.md[i] = wm.per_permu[3] - wm.per_permu[4]
+  set_t_wm.per.pd[i] = wm.per_permu[2] - wm.per_permu[4]
+  
+  set_f_stae.per[i] = sum((stae.per_permu[2:4] - stae.per_permu[1])^2)
+  set_t_stae.per.pm[i] = stae.per_permu[2] - stae.per_permu[3]
+  set_t_stae.per.md[i] = stae.per_permu[3] - stae.per_permu[4]
+  set_t_stae.per.pd[i] = stae.per_permu[2] - stae.per_permu[4]
+}
+
+## P-value for the Permutation Tests ####
+### overall test ####
+f_wm.per = sum((wm.per[2:4] - wm.per[1])^2) # 2121.144
+f_stae.per = sum((stae.per[2:4] - stae.per[1])^2) # 860.2689
+
+p_f_wm.per=length(set_f_wm.per[set_f_wm.per>=f_wm.per])/reps 
+p_f_stae.per=length(set_f_stae.per[set_f_stae.per>=f_stae.per])/reps 
+p_f.per=c(p_f_wm.per, p_f_stae.per)
+names(p_f.per)=c("p_f_wm.per","p_f_stae.per")
+# p_f_wm.per p_f_stae.per 
+#   1e-04        0e+00 
+### pairwise tests ####
+#### P vs. M 
+t_wm.per.pm = unname(wm.per[2] - wm.per[3]) # -16.33404
+t_stae.per.pm = unname(stae.per[2] - stae.per[3]) # -13.51103
+
+p_t_wm.per.pm = 2*length(set_t_wm.per.pm[set_t_wm.per.pm<=t_wm.per.pm])/reps
+p_t_stae.per.pm = 2*length(set_t_stae.per.pm[set_t_stae.per.pm<=t_stae.per.pm])/reps
+p_t.per.pm = c(p_t_wm.per.pm, p_t_stae.per.pm)
+names(p_t.per.pm) = c("p_t_wm.per.pm","p_t_stae.per.pm")
+# p_t_wm.per.pm p_t_stae.per.pm 
+#   0.2744          0.1518 
+
+#### M vs. D
+t_wm.per.md = unname(wm.per[3] - wm.per[4]) # 59.40592
+t_stae.per.md = unname(stae.per[3] - stae.per[4]) # 40.68873
+
+p_t_wm.per.md = 2*length(set_t_wm.per.md[set_t_wm.per.md>=t_wm.per.md])/reps
+p_t_stae.per.md = 2*length(set_t_stae.per.md[set_t_stae.per.md>=t_stae.per.md])/reps
+p_t.per.md = c(p_t_wm.per.md, p_t_stae.per.md)
+names(p_t.per.md) = c("p_t_wm.per.md","p_t_stae.per.md")
+# p_t_wm.per.md p_t_stae.per.md 
+#       0               0 
+
+#### P vs. D
+t_wm.per.pd = unname(wm.per[2] - wm.per[4]) # 43.07188
+t_stae.per.pd = unname(stae.per[2] - stae.per[4]) # 27.17769
+
+p_t_wm.per.pd = 2*length(set_t_wm.per.pd[set_t_wm.per.pd>=t_wm.per.pd])/reps
+p_t_stae.per.pd = 2*length(set_t_stae.per.pd[set_t_stae.per.pd>=t_stae.per.pd])/reps
+p_t.per.pd = c(p_t_wm.per.pd, p_t_stae.per.pd)
+names(p_t.per.pd) = c("p_t_wm.per.pd","p_t_stae.per.pd")
+# p_t_wm.per.pd p_t_stae.per.pd 
+#    0.0018          0.0024 
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+###########################
+####### Circularity #######
+###########################
+
+# SET DATA ####
+datt.cir=datt$Circularity
+datt.cir_p=datt[datt$PMD=="P",]$Circularity
+datt.cir_m=datt[datt$PMD=="M",]$Circularity
+datt.cir_d=datt[datt$PMD=="D",]$Circularity
+
+## All Arithmetic Means ####
+m.cir=c(mean(datt.cir),mean(datt.cir_p),
+        mean(datt.cir_m),mean(datt.cir_d))
+names(m.cir)=c("wm.cir.all","wm.cir.p","wm.cir.m","wm.cir.d")
+# wm.cir.all   wm.cir.p   wm.cir.m   wm.cir.d 
+# 0.7389333  0.7442475  0.7706850  0.7018675 
+
+# PERMUTATION TEST ####
+## Setting Arguments ####
+set.seed(12345)
+reps=10000
+
+set_f_m.cir = numeric(length=reps)
+set_t_m.cir.pm = numeric(length=reps)
+set_t_m.cir.md = numeric(length=reps)
+set_t_m.cir.pd = numeric(length=reps)
+
+for (i in 1:reps){
+  ### Setting data
+  permu.cir=sample(datt$Circularity, dim(datt)[1], replace=FALSE)
+  permu.dat=data.frame(PMD=datt$PMD,Circularity=permu.cir)
+  
+  permu.dat.cir=permu.dat$Circularity
+  permu.dat.cir_p=permu.dat[permu.dat$PMD=="P",]$Circularity
+  permu.dat.cir_m=permu.dat[permu.dat$PMD=="M",]$Circularity
+  permu.dat.cir_d=permu.dat[permu.dat$PMD=="D",]$Circularity
+  
+  ### Calculating overall mean and mean by locations  
+  m.cir_permu = c(mean(permu.dat.cir),mean(permu.dat.cir_p),
+                  mean(permu.dat.cir_m),mean(permu.dat.cir_d))
+  
+  ### Save the f and t values
+  set_f_m.cir[i] = sum((m.cir_permu[2:4]-m.cir_permu[1])^2)
+  set_t_m.cir.pm[i] = m.cir_permu[2]-m.cir_permu[3]
+  set_t_m.cir.md[i] = m.cir_permu[3]-m.cir_permu[4]
+  set_t_m.cir.pd[i] = m.cir_permu[2]-m.cir_permu[4]
+}
+
+## P-value for the Permutation Tests ####
+### overall test ####
+f_m.cir = sum((m.cir[2:4] - m.cir[1])^2) # 994563.6
+p_f_m.cir=length(set_f_m.cir[set_f_m.cir>=f_m.cir])/reps # 0.007
+
+### pairwise tests ####
+#### P vs. M 
+t_m.cir.pm = unname(m.cir[2] - m.cir[3]) # -0.0264375
+p_t_m.cir.pm = 2*length(set_t_m.cir.pm[set_t_m.cir.pm<=t_m.cir.pm])/reps # 0.2476
+
+#### M vs. D
+t_m.cir.md = unname(m.cir[3] - m.cir[4]) # 0.0688175
+p_t_m.cir.md = 2*length(set_t_m.cir.md[set_t_m.cir.md>=t_m.cir.md])/reps # 0.0022
+
+#### P vs. D
+t_m.cir.pd = unname(m.cir[2] - m.cir[4]) # 0.04238
+p_t_m.cir.pd = 2*length(set_t_m.cir.pd[set_t_m.cir.pd>=t_m.cir.pd])/reps # 0.0616
+
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+############################
+####### Asepct Ratio #######
+############################
+
+# SET DATA ####
+datt.ar=datt$Aspect.Ratio
+datt.ar_p=datt[datt$PMD=="P",]$Aspect.Ratio
+datt.ar_m=datt[datt$PMD=="M",]$Aspect.Ratio
+datt.ar_d=datt[datt$PMD=="D",]$Aspect.Ratio
+
+## All Arithmetic Means ####
+m.ar=c(mean(datt.ar),mean(datt.ar_p),
+        mean(datt.ar_m),mean(datt.ar_d))
+names(m.ar)=c("wm.ar.all","wm.ar.p","wm.ar.m","wm.ar.d")
+# wm.ar.all   wm.ar.p   wm.ar.m   wm.ar.d 
+#  1.474672  1.529380  1.369450  1.525185 
+
+
+# PERMUTATION TEST ####
+## Setting Arguments ####
+set.seed(12345)
+reps=10000
+
+set_f_m.ar = numeric(length=reps)
+set_t_m.ar.pm = numeric(length=reps)
+set_t_m.ar.md = numeric(length=reps)
+set_t_m.ar.pd = numeric(length=reps)
+
+for (i in 1:reps){
+  ### Setting data
+  permu.ar=sample(datt$Aspect.Ratio, dim(datt)[1], replace=FALSE)
+  permu.dat=data.frame(PMD=datt$PMD,Aspect.Ratio=permu.ar)
+  
+  permu.dat.ar=permu.dat$Aspect.Ratio
+  permu.dat.ar_p=permu.dat[permu.dat$PMD=="P",]$Aspect.Ratio
+  permu.dat.ar_m=permu.dat[permu.dat$PMD=="M",]$Aspect.Ratio
+  permu.dat.ar_d=permu.dat[permu.dat$PMD=="D",]$Aspect.Ratio
+  
+  ### Calculating overall mean and mean by locations  
+  m.ar_permu = c(mean(permu.dat.ar),mean(permu.dat.ar_p),
+                  mean(permu.dat.ar_m),mean(permu.dat.ar_d))
+  
+  ### Save the f and t values
+  set_f_m.ar[i] = sum((m.ar_permu[2:4]-m.ar_permu[1])^2)
+  set_t_m.ar.pm[i] = m.ar_permu[2]-m.ar_permu[3]
+  set_t_m.ar.md[i] = m.ar_permu[3]-m.ar_permu[4]
+  set_t_m.ar.pd[i] = m.ar_permu[2]-m.ar_permu[4]
+}
+
+## P-value for the Permutation Tests ####
+### overall test ####
+f_m.ar = sum((m.ar[2:4] - m.ar[1])^2) # 0.0166162
+p_f_m.ar = length(set_f_m.ar[set_f_m.ar>=f_m.ar])/reps # 0.1838
+
+### pairwise tests ####
+#### P vs. M 
+t_m.ar.pm = unname(m.ar[2] - m.ar[3]) # 0.15993
+p_t_m.ar.pm = 2*length(set_t_m.ar.pm[set_t_m.ar.pm>=t_m.ar.pm])/reps # 0.1046
+
+#### M vs. D
+t_m.ar.md = unname(m.ar[3] - m.ar[4]) # -0.155735
+p_t_m.ar.md = 2*length(set_t_m.ar.md[set_t_m.ar.md<=t_m.ar.md])/reps # 0.1102
+
+#### P vs. D
+t_m.ar.pd = unname(m.ar[2] - m.ar[4]) # 0.004195
+p_t_m.ar.pd = 2*length(set_t_m.ar.pd[set_t_m.ar.pd>=t_m.ar.pd])/reps # 0.9884
+@
+
+We found that the difference in Area, Perimeter, Circularity between locations is statistically significant at $0.05$ significance level, as seen in Table~\ref{tab} regardless of which estimators. For the Aspect Ratio, there is not a statistically significant difference between locations. 
+
+Also, we did pairwise comparison tests by using Bonferroni's Correction to correct the significance level of each paired comparison to be $\frac{\text{significance level for Overall Hypothesis Test}}{\text{number of pairwise comparison}} = 0.05/3 \doteq 0.0167$. Hence, as we can be seen in Table~\ref{tab}, we have enough evidence to say mean Area and Perimeter of mitochondria is significantly different between Middle and Distal end and between Proximal and Distal end. The results from the parametric estimators (MLE and 2TAE) is consistent to the nonparametric estimator (Weighted mean) in this case. For Circularity, we only have enough evidence to reject the null hypothesis that mean Circularity of mitochondria at Middle is equal to at Distal.
+
+\bigbreak
+<<echo=FALSE, results='asis', message = FALSE>>=
+prop=c("Area",NA,"Perimeter",NA,"Circularity","Aspect Ratio")
+est=c("WM","MLE","WM","2TAE","AM","AM")
+p=c(p_f.area, p_f.per, p_f_m.cir, p_f_m.ar)
+p=formatC(p,format="f",digits=4)
+p[c(1,4)]=rep("<0.0001",2)
+p_m=c(p_t_wm.area.pm, p_t_mle.area.pm, p_t_wm.per.pm, 
+      p_t_stae.per.pm, p_t_m.cir.pm, p_t_m.ar.pm)
+p_m=formatC(p_m,format="f",digits=4)
+
+m_d=c(p_t_wm.area.md, p_t_mle.area.md, p_t_wm.per.md, 
+      p_t_stae.per.md, p_t_m.cir.md, p_t_m.ar.md)
+m_d=formatC(m_d,format="f",digits=4)
+m_d[c(1,3,4)]=rep("<0.0001",3)
+
+p_d=c(p_t_wm.area.pd, p_t_mle.area.pd, p_t_wm.per.pd, 
+      p_t_stae.per.pd, p_t_m.cir.pd, p_t_m.ar.pd)
+p_d=formatC(p_d,format="f",digits=4)
+
+tab=cbind(Property=prop, Estimate=est, Overall=p, pm=p_m, md=m_d, pd=p_d)
+colnames(tab)=c("Property", "Estimator", "Overall", 
+                "P vs. M", "M vs. D", "P vs. D")
+
+library(Hmisc)
+# cellTex <- matrix(rep("", nrow(tab) * ncol(tab)), nrow=nrow(tab))
+# cellTex[3,4] <- "cellcolor{red}"
+out <- sub("&&&&&\\\\tabularnewline", "",
+           capture.output( latex(tab,rowname = NULL, file= "", 
+      n.rgroup = c(2,2,1,1),  
+      label="tab", col.just= c("c","c","r","r","r","r"), 
+      caption.loc=c("bottom"),
+      caption="Unadjusted p-values from Overall and Pairwise Comparison Hypothesis Tests. The significance level for Overall Hypothesis Test is 0.05 and the significance level for Pairwise Hypothesis Test with the Bonferroni correction 0.0167.",where= "!htbp")))
+writeLines(out)
+@
+
+\newpage
+\subsection{Confidence Intervals}
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+####################
+####### Area #######
+####################
+
+# SET DATA ####
+datt=read.csv("/Users/chou/Google Drive/UMN2014-2016/Spring2016/Plan B/final/clean_dat.csv",header=TRUE)
+datt.area=datt$Area
+datt.area_p=datt[datt$PMD=="P",]$Area
+datt.area_m=datt[datt$PMD=="M",]$Area
+datt.area_d=datt[datt$PMD=="D",]$Area
+
+## Function: Weighted Mean ####
+fun_wm.area=function(data.area, data.area_p, data.area_m, data.area_d){
+  w.area.all=sum(data.area)/data.area
+  wm.area.all=sum(data.area*w.area.all)/sum(w.area.all) 
+  
+  w.area.p=sum(data.area_p)/data.area_p
+  wm.area.p=sum(data.area_p*w.area.p)/sum(w.area.p) 
+  w.area.m=sum(data.area_m)/data.area_m
+  wm.area.m=sum(data.area_m*w.area.m)/sum(w.area.m) 
+  w.area.d=sum(data.area_d)/data.area_d
+  wm.area.d=sum(data.area_d*w.area.d)/sum(w.area.d) 
+  
+  output_wm.area=c(wm.area.all,wm.area.p,wm.area.m,wm.area.d)
+  return(output_wm.area)
+}
+
+# BOOTSTRAP FOR CI #### 
+## Setting Arguments ####
+reps=10000
+set.seed(12345)
+
+set_wm.area.all=numeric(length=reps)
+set_wm.area.p=numeric(length=reps)
+set_wm.area.m=numeric(length=reps)
+set_wm.area.d=numeric(length=reps)
+
+set_mle.area.all=numeric(length=reps)
+set_mle.area.p=numeric(length=reps)
+set_mle.area.m=numeric(length=reps)
+set_mle.area.d=numeric(length=reps)
+
+set_diff_wm.area.pm = numeric(length=reps)
+set_diff_wm.area.md = numeric(length=reps)
+set_diff_wm.area.pd = numeric(length=reps)
+set_diff_mle.area.pm = numeric(length=reps)
+set_diff_mle.area.md = numeric(length=reps)
+set_diff_mle.area.pd = numeric(length=reps)
+
+## Bootstrap Algorithm ####
+for (i in 1:reps){
+  boot.datt.area=sample(datt.area,length(datt.area),replace=T)
+  boot.datt.area_p=sample(datt.area_p,length(datt.area_p),replace=T)
+  boot.datt.area_m=sample(datt.area_m,length(datt.area_m),replace=T)
+  boot.datt.area_d=sample(datt.area_d,length(datt.area_d),replace=T)
+  
+  wm.area_boot=fun_wm.area(boot.datt.area, boot.datt.area_p, 
+                           boot.datt.area_m, boot.datt.area_d) 
+  
+  set_wm.area.all[i]=wm.area_boot[1]
+  set_wm.area.p[i]=wm.area_boot[2]
+  set_wm.area.m[i]=wm.area_boot[3]
+  set_wm.area.d[i]=wm.area_boot[4]
+  
+  set_mle.area.all[i]=mean(boot.datt.area)/2
+  set_mle.area.p[i]=mean(boot.datt.area_p)/2
+  set_mle.area.m[i]=mean(boot.datt.area_m)/2
+  set_mle.area.d[i]=mean(boot.datt.area_d)/2
+  
+  set_diff_wm.area.pm[i] = wm.area_boot[2] - wm.area_boot[3]
+  set_diff_wm.area.md[i] = wm.area_boot[3] - wm.area_boot[4]
+  set_diff_wm.area.pd[i] = wm.area_boot[2] - wm.area_boot[4]
+  set_diff_mle.area.pm[i] = set_mle.area.p[i] - set_mle.area.m[i]
+  set_diff_mle.area.md[i] = set_mle.area.m[i] - set_mle.area.d[i]
+  set_diff_mle.area.pd[i] = set_mle.area.p[i] - set_mle.area.d[i]
+}
+
+## CI ####
+### overall and every locations ####
+ci_wm.area.all=quantile(set_wm.area.all,c(0.05/2,1-0.05/2)) # 1680.974 2243.383   
+ci_wm.area.p=quantile(set_wm.area.p,c(0.05/2,1-0.05/2)) # 1680.974 2243.383  
+ci_wm.area.m=quantile(set_wm.area.m,c(0.05/2,1-0.05/2)) # 2038.772 2791.910
+ci_wm.area.d=quantile(set_wm.area.d,c(0.05/2,1-0.05/2)) # 873.0193 1350.5643
+
+ci_mle.area.all=quantile(set_mle.area.all,c(0.05/2,1-0.05/2)) # 1062.192 1310.405 
+ci_mle.area.p=quantile(set_mle.area.p,c(0.05/2,1-0.05/2)) # 1032.411 1426.765 
+ci_mle.area.m=quantile(set_mle.area.m,c(0.05/2,1-0.05/2)) # 1276.535 1686.788 
+ci_mle.area.d=quantile(set_mle.area.d,c(0.05/2,1-0.05/2)) # 669.2359 1055.7634 
+
+### difference in each pairs ####
+#### P vs. M 
+ci_wm.area.pm=quantile(set_diff_wm.area.pm,c(0.0167/2,1-0.0167/2)) # -1036.8946   120.9274
+ci_mle.area.pm=quantile(set_diff_mle.area.pm,c(0.0167/2,1-0.0167/2)) # -602.7395  104.3074
+
+#### M vs. D
+ci_wm.area.md=quantile(set_diff_wm.area.md,c(0.0167/2,1-0.0167/2)) # 767.2153 1869.3910 
+ci_mle.area.md=quantile(set_diff_mle.area.md,c(0.0167/2,1-0.0167/2)) # 274.5067 961.3635 
+
+#### P vs. D
+ci_wm.area.pd=quantile(set_diff_wm.area.pd,c(0.0167/2,1-0.0167/2)) # 400.3935 1313.6611 
+ci_mle.area.pd=quantile(set_diff_mle.area.pd,c(0.0167/2,1-0.0167/2)) # 27.9301 711.4919 
+
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+##########################
+####### Perimeter #######
+#########################
+
+# SET DATA ####
+datt.area=datt$Area
+datt.area_p=datt[datt$PMD=="P",]$Area
+datt.area_m=datt[datt$PMD=="M",]$Area
+datt.area_d=datt[datt$PMD=="D",]$Area
+datt.per=datt$Perimeter
+datt.per_p=datt[datt$PMD=="P",]$Perimeter
+datt.per_m=datt[datt$PMD=="M",]$Perimeter
+datt.per_d=datt[datt$PMD=="D",]$Perimeter
+datt.cir=datt$Circularity
+datt.cir_p=datt[datt$PMD=="P",]$Circularity
+datt.cir_m=datt[datt$PMD=="M",]$Circularity
+datt.cir_d=datt[datt$PMD=="D",]$Circularity
+datt_p=datt[datt$PMD=="P",]
+datt_m=datt[datt$PMD=="M",]
+datt_d=datt[datt$PMD=="D",]
+
+## Function: Weighted Mean ####
+fun_wm.per=function(data.area, data.per, data.area_p, data.per_p,
+                    data.area_m, data.per_m, 
+                    data.area_d, data.per_d){
+  w.per.all=sum(data.area)/data.area
+  wm.per.all=sum(data.per*w.per.all)/sum(w.per.all) #158.7518
+  
+  w.per.p=sum(data.area_p)/data.area_p
+  wm.per.p=sum(data.per_p*w.per.p)/sum(w.per.p) 
+  w.per.m=sum(data.area_m)/data.area_m
+  wm.per.m=sum(data.per_m*w.per.m)/sum(w.per.m) 
+  w.per.d=sum(data.area_d)/data.area_d
+  wm.per.d=sum(data.per_d*w.per.d)/sum(w.per.d) 
+  
+  output_wm.per=c(wm.per.all, wm.per.p, wm.per.m, wm.per.d)
+  return(output_wm.per)
+}
+
+## Function: sTAE ####
+fun1_stae.per=function(data.area, data.cir){
+  m.area=mean(data.area)
+  var.area=var(data.area)
+  m.cir=mean(data.cir)
+  var.cir=var(data.cir)
+  
+  output1_stae.per=sqrt(4*pi)*(sqrt(m.area/(2*m.cir))-
+                                 (1/8)*(m.area/2)^(-3/2)*(m.cir)^(-1/2)*(var.area/2)+
+                                 (3/8)*(m.area/2)^(1/2)*(m.cir)^(-5/2)*(var.cir)) 
+  return(output1_stae.per)
+}
+
+fun2_stae.per=function(data.area, data.cir,
+                       data.area_p, data.cir_p,
+                       data.area_m, data.cir_m,
+                       data.area_d, data.cir_d){
+  
+  output2_stae.per.all=fun1_stae.per(data.area, data.cir) #130.5544
+  
+  output2_stae.per.p=fun1_stae.per(data.area_p, data.cir_p) #130.5544
+  output2_stae.per.m=fun1_stae.per(data.area_m, data.cir_m) #130.5544
+  output2_stae.per.d=fun1_stae.per(data.area_d, data.cir_d) #130.5544
+  
+  output2_stae.per=c(output2_stae.per.all, output2_stae.per.p, 
+                     output2_stae.per.m, output2_stae.per.d)
+  return(output2_stae.per)
+}
+
+# BOOTSTRAP FOR CI #### 
+## Setting Arguments ####
+reps=10000
+set.seed(12345)
+
+set_wm.per.all=numeric(length=reps)
+set_wm.per.p=numeric(length=reps)
+set_wm.per.m=numeric(length=reps)
+set_wm.per.d=numeric(length=reps)
+
+set_stae.per.all=numeric(length=reps)
+set_stae.per.p=numeric(length=reps)
+set_stae.per.m=numeric(length=reps)
+set_stae.per.d=numeric(length=reps)
+
+set_diff_wm.per.pm = numeric(length=reps)
+set_diff_wm.per.md = numeric(length=reps)
+set_diff_wm.per.pd = numeric(length=reps)
+set_diff_stae.per.pm = numeric(length=reps)
+set_diff_stae.per.md = numeric(length=reps)
+set_diff_stae.per.pd = numeric(length=reps)
+
+## Bootstrap Algorithm ####
+for (i in 1:reps){
+  boot.datt=datt[sample(1:dim(datt)[1],dim(datt),replace=T),]
+  boot.datt_p=datt_p[sample(1:dim(datt_p)[1],dim(datt_p),replace=T),]
+  boot.datt_m=datt_m[sample(1:dim(datt_m)[1],dim(datt_m),replace=T),]
+  boot.datt_d=datt_d[sample(1:dim(datt_d)[1],dim(datt_d),replace=T),]
+  
+  boot.datt.area=boot.datt$Area
+  boot.datt.area_p=boot.datt_p$Area
+  boot.datt.area_m=boot.datt_m$Area
+  boot.datt.area_d=boot.datt_d$Area
+  
+  boot.datt.per=boot.datt$Perimeter
+  boot.datt.per_p=boot.datt_p$Perimeter
+  boot.datt.per_m=boot.datt_m$Perimeter
+  boot.datt.per_d=boot.datt_d$Perimeter
+  
+  boot.datt.cir=boot.datt$Circularity
+  boot.datt.cir_p=boot.datt_p$Circularity
+  boot.datt.cir_m=boot.datt_m$Circularity
+  boot.datt.cir_d=boot.datt_d$Circularity
+  
+  ## Overall weighted mean
+  wm.per_boot=fun_wm.per(boot.datt.area, boot.datt.per, 
+                         boot.datt.area_p, boot.datt.per_p, 
+                         boot.datt.area_m, boot.datt.per_m, 
+                         boot.datt.area_d, boot.datt.per_d)
+  
+  ## Overall 2nd order Taylor approximation
+  stae.per_boot=fun2_stae.per(boot.datt.area, boot.datt.cir, 
+                              boot.datt.area_p,  boot.datt.cir_p, 
+                              boot.datt.area_m,  boot.datt.cir_m, 
+                              boot.datt.area_d,  boot.datt.cir_d)
+  
+  set_wm.per.all[i]=wm.per_boot[1]
+  set_wm.per.p[i]=wm.per_boot[2]
+  set_wm.per.m[i]=wm.per_boot[3]
+  set_wm.per.d[i]=wm.per_boot[4]
+  
+  set_stae.per.all[i] = stae.per_boot[1]
+  set_stae.per.p[i] = stae.per_boot[2]
+  set_stae.per.m[i] = stae.per_boot[3]
+  set_stae.per.d[i] = stae.per_boot[4]
+  
+  set_diff_wm.per.pm[i] = wm.per_boot[2] - wm.per_boot[3]
+  set_diff_wm.per.md[i] = wm.per_boot[3] - wm.per_boot[4]
+  set_diff_wm.per.pd[i] = wm.per_boot[2] - wm.per_boot[4]
+  set_diff_stae.per.pm[i] = set_stae.per.p[i] - set_stae.per.m[i]
+  set_diff_stae.per.md[i] = set_stae.per.m[i] - set_stae.per.d[i]
+  set_diff_stae.per.pd[i] = set_stae.per.p[i] - set_stae.per.d[i]
+}
+
+## CI ####
+### overall and every locations ####
+ci_wm.per.all=quantile(set_wm.per.all,c(0.05/2,1-0.05/2)) # 147.8760 171.0028 
+ci_wm.per.p=quantile(set_wm.per.p,c(0.05/2,1-0.05/2)) # 164.4985 191.4685 
+ci_wm.per.m=quantile(set_wm.per.m,c(0.05/2,1-0.05/2)) # 177.8577 209.6533 
+ci_wm.per.d=quantile(set_wm.per.d,c(0.05/2,1-0.05/2)) # 121.0496 150.0380 
+
+ci_stae.per.all=quantile(set_stae.per.all,c(0.05/2,1-0.05/2)) # 123.2696 138.3049 
+ci_stae.per.p=quantile(set_stae.per.p,c(0.05/2,1-0.05/2)) # 123.3723 147.1682 
+ci_stae.per.m=quantile(set_stae.per.m,c(0.05/2,1-0.05/2)) # 137.3493 158.8023 
+ci_stae.per.d=quantile(set_stae.per.d,c(0.05/2,1-0.05/2)) # 95.11829 120.94418 
+
+### difference in each pairs ####
+#### P vs. M 
+ci_wm.per.pm=quantile(set_diff_wm.per.pm,c(0.0167/2,1-0.0167/2)) # -41.62799  10.16246 
+ci_stae.per.pm=quantile(set_diff_stae.per.pm,c(0.0167/2,1-0.0167/2)) # -32.273450   6.945564 
+
+#### M vs. D
+ci_wm.per.md=quantile(set_diff_wm.per.md,c(0.0167/2,1-0.0167/2)) # 32.03035 84.53292 
+ci_stae.per.md=quantile(set_diff_stae.per.md,c(0.0167/2,1-0.0167/2)) # 19.23077 60.69774 
+
+#### P vs. D
+ci_wm.per.pd=quantile(set_diff_wm.per.pd,c(0.0167/2,1-0.0167/2)) # 17.91930 66.71862 
+ci_stae.per.pd=quantile(set_diff_stae.per.pd,c(0.0167/2,1-0.0167/2)) # 6.08976 48.08719 
+
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+###########################
+####### Circularity ######
+##########################
+# SET DATA ####
+datt.cir=datt$Circularity
+datt.cir_p=datt[datt$PMD=="P",]$Circularity
+datt.cir_m=datt[datt$PMD=="M",]$Circularity
+datt.cir_d=datt[datt$PMD=="D",]$Circularity
+
+
+# BOOTSTRAP FOR CI #### 
+## Setting Arguments ####
+reps=10000
+set.seed(12345)
+
+set_m.cir.all=numeric(length=reps)
+set_m.cir.p=numeric(length=reps)
+set_m.cir.m=numeric(length=reps)
+set_m.cir.d=numeric(length=reps)
+
+set_diff_m.cir.pm = numeric(length=reps)
+set_diff_m.cir.md = numeric(length=reps)
+set_diff_m.cir.pd = numeric(length=reps)
+
+
+## Bootstrap Algorithm ####
+for (i in 1:reps){
+  boot.datt.cir=sample(datt.cir,length(datt.cir),replace=T)
+  boot.datt.cir_p=sample(datt.cir_p,length(datt.cir_p),replace=T)
+  boot.datt.cir_m=sample(datt.cir_m,length(datt.cir_m),replace=T)
+  boot.datt.cir_d=sample(datt.cir_d,length(datt.cir_d),replace=T)
+  
+  m.cir_boot=c(mean(boot.datt.cir), mean(boot.datt.cir_p),
+                mean(boot.datt.cir_m), mean(boot.datt.cir_d))
+  
+  set_m.cir.all[i]=m.cir_boot[1]
+  set_m.cir.p[i]=m.cir_boot[2]
+  set_m.cir.m[i]=m.cir_boot[3]
+  set_m.cir.d[i]=m.cir_boot[4]
+  
+  set_diff_m.cir.pm[i] = m.cir_boot[2] - m.cir_boot[3]
+  set_diff_m.cir.md[i] = m.cir_boot[3] - m.cir_boot[4]
+  set_diff_m.cir.pd[i] = m.cir_boot[2] - m.cir_boot[4]
+}
+## CI ####
+### overall and every locations ####
+ci_m.cir.all=quantile(set_m.cir.all,c(0.05/2,1-0.05/2)) # 0.7207111 0.7566492 
+ci_m.cir.p=quantile(set_m.cir.p,c(0.05/2,1-0.05/2)) # 0.7105172 0.7760976 
+ci_m.cir.m=quantile(set_m.cir.m,c(0.05/2,1-0.05/2)) # 0.7466694 0.7937179 
+ci_m.cir.d=quantile(set_m.cir.d,c(0.05/2,1-0.05/2)) # 0.6681738 0.7322703 
+
+### difference in each pairs ####
+#### P vs. M 
+ci_m.cir.pm=quantile(set_diff_m.cir.pm,c(0.0167/2,1-0.0167/2)) # -0.07683523  0.02251121 
+
+#### M vs. D
+ci_m.cir.md=quantile(set_diff_m.cir.md,c(0.0167/2,1-0.0167/2)) # 0.02000446 0.11876638 
+
+#### P vs. D
+ci_m.cir.pd=quantile(set_diff_m.cir.pd,c(0.0167/2,1-0.0167/2)) # -0.01389986  0.09895042 
+@
+
+<<echo=FALSE,warning=FALSE, message=FALSE>>=
+############################
+####### Asepct Ratio #######
+############################
+
+# SET DATA ####
+datt.ar=datt$Aspect.Ratio
+datt.ar_p=datt[datt$PMD=="P",]$Aspect.Ratio
+datt.ar_m=datt[datt$PMD=="M",]$Aspect.Ratio
+datt.ar_d=datt[datt$PMD=="D",]$Aspect.Ratio
+
+# BOOTSTRAP FOR CI #### 
+## Setting Arguments ####
+reps=10000
+set.seed(12345)
+
+set_m.ar.all=numeric(length=reps)
+set_m.ar.p=numeric(length=reps)
+set_m.ar.m=numeric(length=reps)
+set_m.ar.d=numeric(length=reps)
+
+set_diff_m.ar.pm = numeric(length=reps)
+set_diff_m.ar.md = numeric(length=reps)
+set_diff_m.ar.pd = numeric(length=reps)
+
+## Bootstrap Algorithm ####
+for (i in 1:reps){
+  boot.datt.ar=sample(datt.ar,length(datt.ar),replace=T)
+  boot.datt.ar_p=sample(datt.ar_p,length(datt.ar_p),replace=T)
+  boot.datt.ar_m=sample(datt.ar_m,length(datt.ar_m),replace=T)
+  boot.datt.ar_d=sample(datt.ar_d,length(datt.ar_d),replace=T)
+  
+  m.ar_boot=c(mean(boot.datt.ar), mean(boot.datt.ar_p),
+               mean(boot.datt.ar_m), mean(boot.datt.ar_d))
+  
+  set_m.ar.all[i]=m.ar_boot[1]
+  set_m.ar.p[i]=m.ar_boot[2]
+  set_m.ar.m[i]=m.ar_boot[3]
+  set_m.ar.d[i]=m.ar_boot[4]
+  
+  set_diff_m.ar.pm[i] = m.ar_boot[2] - m.ar_boot[3]
+  set_diff_m.ar.md[i] = m.ar_boot[3] - m.ar_boot[4]
+  set_diff_m.ar.pd[i] = m.ar_boot[2] - m.ar_boot[4]
+}
+
+## CI ####
+### overall and every locations ####
+ci_m.ar.all=quantile(set_m.ar.all,c(0.05/2,1-0.05/2)) # 1.399457 1.558271 
+ci_m.ar.p=quantile(set_m.ar.p,c(0.05/2,1-0.05/2)) # 1.384360 1.704902 
+ci_m.ar.m=quantile(set_m.ar.m,c(0.05/2,1-0.05/2)) # 1.268968 1.490073 
+ci_m.ar.d=quantile(set_m.ar.d,c(0.05/2,1-0.05/2)) # 1.409164 1.657349 
+
+### difference in each pairs ####
+#### P vs. M 
+ci_m.ar.pm=quantile(set_diff_m.ar.pm,c(0.0167/2,1-0.0167/2)) # -0.07729163  0.40830669 
+
+#### M vs. D
+ci_m.ar.md=quantile(set_diff_m.ar.md,c(0.0167/2,1-0.0167/2)) # -0.36042486  0.04415264  
+
+#### P vs. D
+ci_m.ar.pd=quantile(set_diff_m.ar.pd,c(0.0167/2,1-0.0167/2)) # -0.2379284  0.2610344 
+
+@
+
+By using Bootstrapping, we found the 95\% confidence interval of the mean by different Locations (Table~\ref{tab_est}). Also, the 98.33\% simultaneous confidence interval of mean differences for each pair which was shown in Table~\ref{tab_ci}. The value 98.33\% is because of the corrected significant value of 0.0167 from Bonferroni's Correction. 
+<<echo=FALSE, results='asis', message = FALSE>>=
+d_a=data.frame(
+  Estimator=rep(c("WM", "MLE"),each=3),
+  Location=rep(c("P","M","D"),2),
+  value= c(wm.area[2:4],mle.area[2:4]),
+  low=c(ci_wm.area.p[1], ci_wm.area.m[1],ci_wm.area.d[1],
+        ci_mle.area.p[1], ci_mle.area.m[1],ci_mle.area.d[1]),
+  up=c(ci_wm.area.p[2], ci_wm.area.m[2],ci_wm.area.d[2],
+        ci_mle.area.p[2], ci_mle.area.m[2],ci_mle.area.d[2])
+)
+d_a[,3:5]=round(d_a[,3:5], 2)
+d_a$Estimator = factor(d_a$Estimator, levels = c("WM", "MLE"))
+
+d_per=data.frame(
+  Estimator=rep(c("WM", "2TAE"),each=3),
+  Location=rep(c("P","M","D"),2),
+  value= c(wm.per[2:4], stae.per[2:4]),
+  low=c(ci_wm.per.p[1], ci_wm.per.m[1],ci_wm.per.d[1],
+        ci_stae.per.p[1], ci_stae.per.m[1],ci_stae.per.d[1]),
+  up=c(ci_wm.per.p[2], ci_wm.per.m[2],ci_wm.per.d[2],
+        ci_stae.per.p[2], ci_stae.per.m[2],ci_stae.per.d[2])
+)
+d_per[,3:5]=round(d_per[,3:5], 2)
+d_per$Estimator = factor(d_per$Estimator, levels = c("WM", "2TAE"))
+
+d_cir=data.frame(
+  Estimator=rep("AM",each=3),
+  Location=rep(c("P","M","D"),1),
+  value= c(m.cir[2:4]),
+  low=c(ci_m.cir.p[1], ci_m.cir.m[1],ci_m.cir.d[1]),
+  up=c(ci_m.cir.p[2], ci_m.cir.m[2],ci_m.cir.d[2])
+)
+d_cir[,3:5]=round(d_cir[,3:5], 3)
+
+d_ar=data.frame(
+  Estimator=rep("AM",each=3),
+  Location=rep(c("P","M","D"),1),
+  value= c(m.ar[2:4]),
+  low=c(ci_m.ar.p[1], ci_m.ar.m[1],ci_m.ar.d[1]),
+  up=c(ci_m.ar.p[2], ci_m.ar.m[2],ci_m.ar.d[2])
+)
+d_ar[,3:5]=round(d_ar[,3:5], 3)
+
+
+pd <- position_dodge(width=0.5)
+g_area= ggplot(d_a, aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Area")+ coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5)) 
+
+g_per= ggplot(d_per, aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Perimeter")+   coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+g_cir= ggplot(d_cir, aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Circularity")+ coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+g_ar= ggplot(d_ar, aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Aspect Ratio")+   coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+@
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+d_a_diff=data.frame(
+  Estimator=rep(c("WM", "MLE"),each=3),
+  Location=rep(c("P vs. M","M vs. D","P vs. D"),2),
+  value= c(t_wm.area.pm,t_wm.area.md, t_wm.area.pd,
+           t_mle.area.pm,t_mle.area.md,t_mle.area.pd),
+  low=c(ci_wm.area.pm[1], ci_wm.area.md[1],ci_wm.area.pd[1],
+        ci_mle.area.pm[1], ci_mle.area.md[1],ci_mle.area.pd[1]),
+  up=c(ci_wm.area.pm[2], ci_wm.area.md[2],ci_wm.area.pd[2],
+        ci_mle.area.pm[2], ci_mle.area.md[2],ci_mle.area.pd[2])
+)
+d_a_diff$Estimator = factor(d_a_diff$Estimator, levels = c("WM", "MLE"))
+d_a_diff$Location <- factor(d_a_diff$Location, levels = c("P vs. D","M vs. D","P vs. M"))
+d_a_diff[,3:5]=round(d_a_diff[,3:5], 2)
+
+d_per_diff=data.frame(
+  Estimator=rep(c("WM", "2TAE"),each=3),
+  Location=rep(c("P vs. M","M vs. D","P vs. D"),2),
+  value= c(t_wm.per.pm,t_wm.per.md, t_wm.per.pd,
+           t_stae.per.pm,t_stae.per.md,t_stae.per.pd),
+  low=c(ci_wm.per.pm[1], ci_wm.per.md[1],ci_wm.per.pd[1],
+        ci_stae.per.pm[1], ci_stae.per.md[1],ci_stae.per.pd[1]),
+  up=c(ci_wm.per.pm[2], ci_wm.per.md[2],ci_wm.per.pd[2],
+        ci_stae.per.pm[2], ci_stae.per.md[2],ci_stae.per.pd[2])
+)
+d_per_diff$Estimator = factor(d_per_diff$Estimator, levels = c("WM", "2TAE"))
+d_per_diff$Location <- factor(d_per_diff$Location, levels = c("P vs. D","M vs. D","P vs. M"))
+d_per_diff[,3:5]=round(d_per_diff[,3:5], 2)
+
+d_cir_diff=data.frame(
+  Estimator=rep("AM",each=3),
+  Location=rep(c("P vs. M","M vs. D","P vs. D"),1),
+  value= c(t_m.cir.pm,t_m.cir.md, t_m.cir.pd),
+  low=c(ci_m.cir.pm[1], ci_m.cir.md[1],ci_m.cir.pd[1]),
+  up=c(ci_m.cir.pm[2], ci_m.cir.md[2],ci_m.cir.pd[2])
+)
+d_cir_diff$Location <- factor(d_cir_diff$Location, levels = c("P vs. D","M vs. D","P vs. M"))
+d_cir_diff[,3:5]=round(d_cir_diff[,3:5], 3)
+
+d_ar_diff=data.frame(
+  Estimator=rep("AM",each=3),
+  Location=rep(c("P vs. M","M vs. D","P vs. D"),1),
+  value= c(t_m.ar.pm,t_m.ar.md, t_m.ar.pd),
+  low=c(ci_m.ar.pm[1], ci_m.ar.md[1],ci_m.ar.pd[1]),
+  up=c(ci_m.ar.pm[2], ci_m.ar.md[2],ci_m.ar.pd[2])
+)
+d_ar_diff$Location <- factor(d_ar_diff$Location, levels = c("P vs. D","M vs. D","P vs. M"))
+d_ar_diff[,3:5]=round(d_ar_diff[,3:5], 3)
+
+pd <- position_dodge(width=0.5)
+g_area_diff= ggplot(d_a_diff, 
+                    aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Area")+   coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+g_per_diff= ggplot(d_per_diff, 
+                   aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Perimeter")+   coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+g_cir_diff= ggplot(d_cir_diff, 
+                   aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Circularity")+ coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+  
+g_ar_diff= ggplot(d_ar_diff, 
+                  aes(Location, value, color=Estimator)) +
+  geom_point(aes(shape=Estimator),size=3, position=pd)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  scale_shape_manual(name="Estimator",values=c(17,19))+
+  ggtitle("Aspect Ratio")+   coord_flip() +
+  theme(plot.title = element_text(hjust = 0.5))
+@
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+prop=c("Area",rep(NA,5),"Perimeter",rep(NA,5),"Circularity",
+       rep(NA,2),"Aspect Ratio",rep(NA,2))
+est=c("WM",NA,NA,"MLE",NA,NA,"WM",NA,NA,"2TAE",NA,NA,"AM",NA,NA,"AM",NA,NA)
+
+location=rep(c("Proximal","Middle","Distal"),6)
+value=unname(c(wm.area[2], wm.area[3], wm.area[4], 
+               mle.area[2], mle.area[3], mle.area[4], 
+               wm.per[2], wm.per[3], wm.per[4], 
+               stae.per[2], stae.per[3], stae.per[4], 
+               m.cir[2], m.cir[3], m.cir[4], 
+               m.ar[2], m.ar[3], m.ar[4]))
+value=c(formatC(value[1:12],format="f",digits=2),
+        formatC(value[13:18],format="f",digits=3))
+
+lower = unname(c(ci_wm.area.p[1], ci_wm.area.m[1], ci_wm.area.d[1],
+               ci_mle.area.p[1],ci_mle.area.m[1],ci_mle.area.d[1],
+               ci_wm.per.p[1], ci_wm.per.m[1], ci_wm.per.d[1],
+               ci_stae.per.p[1],ci_stae.per.m[1],ci_stae.per.d[1],
+               ci_m.cir.p[1], ci_m.cir.m[1], ci_m.cir.d[1],
+               ci_m.ar.p[1],ci_m.ar.m[1],ci_m.ar.d[1]))
+lower=c(formatC(lower[1:12],format="f",digits=2),
+        formatC(lower[13:18],format="f",digits=3))
+
+upper = unname(c(ci_wm.area.p[2], ci_wm.area.m[2], ci_wm.area.d[2],
+               ci_mle.area.p[2],ci_mle.area.m[2],ci_mle.area.d[2],
+               ci_wm.per.p[2], ci_wm.per.m[2], ci_wm.per.d[2],
+               ci_stae.per.p[2],ci_stae.per.m[2],ci_stae.per.d[2],
+               ci_m.cir.p[2], ci_m.cir.m[2], ci_m.cir.d[2],
+               ci_m.ar.p[2],ci_m.ar.m[2],ci_m.ar.d[2]))
+upper=c(formatC(upper[1:12],format="f",digits=2),
+        formatC(upper[13:18],format="f",digits=3))
+
+tab_est=cbind(prop,est,location,value,lower,upper)
+colnames(tab_est)=c("Property","Estimator","Location","Estimate",
+                    "Lower Bound", "Upper Bound")
+
+out <- sub("&&&&&\\\\tabularnewline", "", capture.output( 
+latex(tab_est, file= "",n.rgroup=c(6,6,3,3),
+      label="tab_est", col.just= c("c","c","c","r","r","r"), 
+      caption.loc=c("bottom"),
+    caption="Estimate for all mean Properties by Locations and their 95\\% Confidence Interval.",where= "!htbp")
+))
+writeLines(out)
+@
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=4>>=
+library(Rmisc)
+multiplot(plotlist = list(g_area,g_per), cols = 2)
+@
+  \caption{95\% Confidence Interval for Population Mean Area and Perimeter by Locations.}
+  \label{m_area_per}
+\end{figure}
+\vspace{0.5cm}
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=4>>=
+library(Rmisc)
+multiplot(plotlist = list(g_cir, g_ar), cols = 2)
+@
+  \caption{95\% Confidence Interval for Population Mean Circularity and Aspect Ratio by Locations.}
+  \label{m_cir_ar}
+\end{figure}
+\vspace{0.5cm}
+
+<<echo=FALSE, results='asis', message = FALSE>>=
+prop=c("Area",rep(NA,5),"Perimeter",rep(NA,5),"Circularity",rep(NA,2),
+       "Aspect Ratio", rep(NA,2))
+est=c("WM",rep(NA,2),"MLE",rep(NA,2),"WM",rep(NA,2),"2TAE",rep(NA,2),
+       "AM",rep(NA,2),"AM",rep(NA,2))
+comp=c(rep(c("P vs. M","M vs. D","P vs. D"),6))
+diff=c(t_wm.area.pm,t_wm.area.md,t_wm.area.pd,
+    t_mle.area.pm,t_mle.area.md,t_mle.area.pd,
+    t_wm.per.pm,t_wm.per.md,t_wm.per.pd,
+    t_stae.per.pm,t_stae.per.md,t_stae.per.pd,
+    t_m.cir.pm,t_m.cir.md,t_m.cir.pd,
+    t_m.ar.pm,t_m.ar.md,t_m.ar.pd)
+diff=c(formatC(diff[1:12],format="f",digits=2),
+        formatC(diff[13:18],format="f",digits=3))
+
+lower=unname(c(ci_wm.area.pm[1], ci_wm.area.md[1], ci_wm.area.pd[1],
+               ci_mle.area.pm[1], ci_mle.area.md[1],ci_mle.area.pd[1],
+               ci_wm.per.pm[1], ci_wm.per.md[1], ci_wm.per.pd[1],
+               ci_stae.per.pm[1], ci_stae.per.md[1],ci_stae.per.pd[1],
+               ci_m.cir.pm[1], ci_m.cir.md[1], ci_m.cir.pd[1],
+               ci_m.ar.pm[1], ci_m.ar.md[1],ci_m.ar.pd[1]
+               ))
+lower=c(formatC(lower[1:12],format="f",digits=2),
+        formatC(lower[13:18],format="f",digits=3))
+
+upper = unname(c(ci_wm.area.pm[2], ci_wm.area.md[2], ci_wm.area.pd[2],
+               ci_mle.area.pm[2], ci_mle.area.md[2],ci_mle.area.pd[2],
+               ci_wm.per.pm[2], ci_wm.per.md[2], ci_wm.per.pd[2],
+               ci_stae.per.pm[2], ci_stae.per.md[2],ci_stae.per.pd[2],
+               ci_m.cir.pm[2], ci_m.cir.md[2], ci_m.cir.pd[2],
+               ci_m.ar.pm[2], ci_m.ar.md[2],ci_m.ar.pd[2]
+               ))
+upper=c(formatC(upper[1:12],format="f",digits=2),
+        formatC(upper[13:18],format="f",digits=3))
+
+tab_ci=cbind(prop,est,comp,diff,lower,upper)
+colnames(tab_ci)=c("Property","Estimator","Comparison","Difference",
+                   "Lower Bound", "Upper Bound")
+
+out <- sub("&&&&&\\\\tabularnewline", "", capture.output( 
+latex(tab_ci, file= "",n.rgroup=c(6,6,3,3),
+      label="tab_ci", col.just= c("c","c","c","r","r","r"), 
+      caption.loc=c("bottom"),
+    caption="Estimate for mean Difference and their 98.33\\% Simultaneous Confidence Interval.",where= "!htbp")
+))
+writeLines(out)
+@
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=4>>=
+library(Rmisc)
+multiplot(plotlist = list(g_area_diff,g_per_diff), cols = 2)
+@
+  \caption{98.33\% Confidence Interval for mean Difference by Locations for Area and Perimeter.}
+  \label{m_area_per_diff}
+\end{figure}
+\vspace{0.5cm}
+
+\begin{figure}[!htbp]
+  \centering
+<<echo=FALSE,warning=FALSE, message=FALSE,fig.width=8, fig.height=4>>=
+library(Rmisc)
+multiplot(plotlist = list(g_cir_diff, g_ar_diff), cols = 2)
+@
+  \caption{98.33\% Confidence Interval for mean Difference by Locations for Circularity and Aspect Ratio.}
+  \label{m_cir_ar_diff}
+\end{figure}
+\vspace{0.5cm}
+
+\end{document}

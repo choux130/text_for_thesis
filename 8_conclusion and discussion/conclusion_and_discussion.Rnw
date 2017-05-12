@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\setcounter{section}{7}
+\setcounter{page}{34}
+
+\section{Conclusion and Discussion}
+The results of our analysis showed that generally mitochondria located in Middle of the muscle fiber cell have larger Area, Perimeter and Circularity which means to support muscle contraction more energy is needed in Middle. Conversely, less energy is needed at Distal end for the significantly smallest Area, Perimeter and Circularity. 
+
+If this analysis will be applied on more muscle fiber cells in the future, I would recommend them to use Nonparametric Weighted Mean as the best estimator for population mean and do hypothesis test based on this estimator. The reasons are for its none distribution assumptions, simple expression and interpretability. Besides, I would also suggest them to use Sampling With Replacement (SWR) rather than Sampling Without Replacement (SWOR) in their sampling scheme because as we can see in the Simulation section the performance of Weighted Mean is not desirable when the case is SWOR unless they can assure the Ratio between population and samples are around 10\% or less. Finding the best estimator for SWOR is a potential area for future work. 
+
+Based on the result of simulation study, we expect Nonparametric Weighted Mean should have similar results with the Parametric Estimators (MLE for Area and 2TAE for Perimeter) but wider confidence interval for the Nonparametric Weighted Mean. However, as we see in Figure 7.2.1 and Table 7.2.1, in our data things are not like what we expected. One of the reason might be the improper distribution assumptions on Area and Circularity. Hence, in the future the robustness of the distribution assumptions can be an interesting topic to work on too.
+
+
+\end{document}

@@ -1,0 +1,77 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+%\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+\setcounter{section}{1} %make section number start from 2.
+\setcounter{page}{7}
+
+\section{Scientific Background}
+Mitochondria, also known as the ``energy factories'' of a cell, is a popular research topic in the fields of biology, chemical biology and biomedical engineering. One of the reasons for its 
+popularity is that the mechanism of how mitochondria produce energy and its dysfunction have a strong relationship to the aging process, as described by Bratic and Larsson (2013).  
+
+The role of mitochondria in muscle contraction can provide some insight into cellular degeneration and aging. There are two ends on a single fiber cell, one is called a proximal point and the other is called a distal point. When a muscle contracts, the proximal point fixes at the same spot and the distal point is pulled to the proximal point. Given the different functions of these two ends, Professor Arriaga hypothesized that the required energy for muscle contraction varies within a single muscle fiber cell. Therefore, he proposed a hypothesis for this project: Properties (defined as Perimeter, Area, Circularity and Aspect Ratio) of mitochondria within a single fiber cell are significantly different by Locations (defined as Proximal end, Middle, or Distal end). 
+
+According to Prof.\ Arriaga, the result of the above hypothesis will be an important base for his future research on the aging process. As a muscle fiber cell ages, its mitochondria also degenerate which means their properties may change and may not be able to produce enough energy to facilitate muscle contractions as powerful as they once were. Hence, by observing the changes of mitochondria in muscle fiber cells over time, more ideas about the aging process may emerge. 
+
+\end{document}

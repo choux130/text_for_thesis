@@ -1,0 +1,91 @@
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+%% maxwidth is the original width if it is less than linewidth
+%% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}
+\usepackage[letterpaper, total={6in, 8in}]{geometry} %size of paper
+\usepackage{indentfirst} %indent after section 
+\usepackage{graphicx}
+\usepackage{amsmath} %number figure based on subsection also
+\numberwithin{figure}{subsection} %number figure based on subsection also
+\numberwithin{table}{subsection} %number table based on subsection also
+
+\setlength{\parindent}{8ex}
+\setlength{\parskip}{2em}
+\renewcommand{\baselinestretch}{2.0}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+
+\setcounter{section}{5}
+\setcounter{page}{26}
+
+\section{Analysis}
+With the goal to figure out whether Properties (Area, Perimeter, Circularity and Aspect Ratio) of mitochondria are different by Locations (Proximal end, Middle and Distal end) in a single muscle fiber cell from a young mouse, we set our null hypothesis (${H}_{0}$) to be that the mean Area, Perimeter, Circularity and Aspect Ratio of mitochondria are equal by Locations and alternative hypothesis  
+ (${H}_{A}$) to be that the means are not all equal. Moreover, I also conducted pairwise comparison tests to find out the difference between Locations. In the overall and pairwise comparison hypothesis tests, MLE and Weighted Mean were used as the estimators of mean Area for the whole mitochondria and for each location; 2nd Order Taylor's Approximation Estimator and Weighted Mean were for Perimeter and Arithmetic Mean was for Circularity and Aspect Ratio for their independence to size of Area. 
+
+\begin{align*}
+&\text{Overall Hypothesis Test:} \\
+&\begin{cases}
+      {H}_{0}: {\mu}_{{i}_{P}} = {\mu}_{{i}_{M}} = {\mu}_{{i}_{D}}, \: i = \left \{ \text{Area, Perimeter, Circularity, Aspect Ratio} \right \} \\
+      {H}_{A}: \text{At least one} \: {\mu}_{{i}_{j}} \neq  {\mu}_{{i}_{k}}, \:  j,k = \left \{ \text{P, M, D} \right \}
+   \end{cases}\\
+&\text{Pairwise Comparison Test:}\\
+&\begin{cases}
+      {H}_{0}: {\mu}_{{i}_{j}} = {\mu}_{{i}_{k}}, \: i = \left \{ \text{Area, Perimeter, Circularity, Aspect Ratio} \right \}; \: j,k = \left \{ \text{P, M, D} \right \} \\
+      {H}_{A}: {\mu}_{{i}_{j}} \neq  {\mu}_{{i}_{k}}
+   \end{cases}
+\end{align*}
+
+Instead of choosing the standard ANOVA (F-test) and T-test as our overall and pairwise comparison test methods, we decided to use a Permutation method. The reasons are that the estimator of population mean in ANOVA and T-test is sample mean but it is not appropriate to Area and Perimeter because of their size-biased samples. And for Circularity and Aspect Ratio, the data violated the normality assumption of ANOVA and T-test (Figure 3.3.3 and Figure 3.3.4). Hence, the statistics in our case for the overall test was $\sum_{i=\left \{P,M,D\right\}}{(\widehat{{\mu}_{i}}-\widehat{{\mu}})}^{2}$ and for the pairwise comparison test was $\widehat{\mu}_{i}-\widehat{\mu}_{j}$, where $i=\left \{P,M,D\right\}$. Their sampling distributions were constructed by assuming the null hypothesis is true, treating the observed data as population, finding out all the possible combinations of elements in groups and then calculating the statistics for every combination. However, it was not efficient for us to calculate all the combinations so we randomly drew large amount of the combinations from the complete set to obtain an approximate sampling distribution. Then, the approximate P-value was the probability for the statistics more extreme than the observed one. After finished all the hypothesis test, we used Bootstrap technique with Bonferroni's correction to obtain confidence interval of true difference of properties means by Locations.
+
+Bonferroni's correction is a method to control Strong Familywise Error Rate in multi-comparison hypothesis tests and to have simultaneous confidence interval for the mean differences. The significance level for each test are defined as $\alpha/m$, where $m$ is the number of test in this multi-comparison test. So, the simultaneous confidence interval for the mean differences will be $(1-\frac{\alpha}{m})\%$.
+
+\end{document}

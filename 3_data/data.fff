@@ -1,0 +1,72 @@
+\begin{figure}[h!]
+  \includegraphics [width=10cm, scale=1.5]{cell.png}
+  \centering
+  \caption{A young mouse muscle fiber cell}
+  \label{cell}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+  \includegraphics [width=10cm, scale=1.5]{location.png}
+  \caption{Definition of locations}
+  \label{location}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+  \includegraphics [width=10cm, scale=1.5]{mitochondria.png}
+  \caption{Chosen Mitochondria}
+  \label{mitochondria}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-1-1}
+
+\end{knitrout}
+  \caption{Histogram and Boxplot of Area by Locations}
+  \label{fig_area_pmd}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-3-1}
+
+\end{knitrout}
+  \caption{Histogram and Boxplot of Perimeter by Locations}
+  \label{fig_peri_pmd}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-1}
+
+\end{knitrout}
+  \caption{Histogram and Boxplot of Circularity by Locations}
+  \label{fig_cir_pmd}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}[h!]
+  \centering
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-1}
+
+\end{knitrout}
+  \caption{Histogram and Boxplot of Aspect Ratio by Locations}
+  \label{fig_ar_pmd}
+\end{figure}
+\efloatseparator
+ 
