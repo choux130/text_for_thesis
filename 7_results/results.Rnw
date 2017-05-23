@@ -1048,34 +1048,42 @@ pd <- position_dodge(width=0.5)
 g_area_diff= ggplot(d_a_diff, 
                     aes(Location, value, color=Estimator)) +
   geom_point(aes(shape=Estimator),size=3, position=pd)+
-  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+ geom_hline(yintercept = 0, 
+             colour= "#D55E00", size=0.9, linetype=2) +
   scale_shape_manual(name="Estimator",values=c(17,19))+
-  ggtitle("Area")+   coord_flip() +
-  theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Area")+   
+  theme(plot.title = element_text(hjust = 0.5)) 
+g_area_diff = g_area_diff +coord_flip() 
 
 g_per_diff= ggplot(d_per_diff, 
                    aes(Location, value, color=Estimator)) +
   geom_point(aes(shape=Estimator),size=3, position=pd)+
-  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+ geom_hline(yintercept = 0, 
+             colour= "#D55E00", size=0.9, linetype=2) + 
   scale_shape_manual(name="Estimator",values=c(17,19))+
-  ggtitle("Perimeter")+   coord_flip() +
-  theme(plot.title = element_text(hjust = 0.5))
+  ggtitle("Perimeter")+   
+  theme(plot.title = element_text(hjust = 0.5)) 
+g_per_diff = g_per_diff + coord_flip() 
 
 g_cir_diff= ggplot(d_cir_diff, 
                    aes(Location, value, color=Estimator)) +
   geom_point(aes(shape=Estimator),size=3, position=pd)+
-  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3) + geom_hline(yintercept = 0, 
+             colour= "#D55E00", size=0.9, linetype=2) +
   scale_shape_manual(name="Estimator",values=c(17,19))+
-  ggtitle("Circularity")+ coord_flip() +
-  theme(plot.title = element_text(hjust = 0.5))
-  
+  ggtitle("Circularity")+ 
+  theme(plot.title = element_text(hjust = 0.5)) 
+g_cir_diff = g_cir_diff + coord_flip() 
+
 g_ar_diff= ggplot(d_ar_diff, 
                   aes(Location, value, color=Estimator)) +
   geom_point(aes(shape=Estimator),size=3, position=pd)+
-  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+
+  geom_errorbar(aes(ymin=low,ymax=up),position=pd, width=0.3)+ geom_hline(yintercept = 0, 
+             colour= "#D55E00", size=0.9, linetype=2) +
   scale_shape_manual(name="Estimator",values=c(17,19))+
-  ggtitle("Aspect Ratio")+   coord_flip() +
+  ggtitle("Aspect Ratio")+   
   theme(plot.title = element_text(hjust = 0.5))
+g_ar_diff = g_ar_diff + coord_flip() 
 @
 
 <<echo=FALSE, results='asis', message = FALSE>>=
